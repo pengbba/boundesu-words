@@ -89,7 +89,7 @@ public class BoundesuWordsService {
         
         try (FileInputStream fis = new FileInputStream(htmlFile)) {
             log.info("开始HTML文件到DOCX转换: {}", htmlFile.getAbsolutePath());
-            return htmlConverter.convertHtmlFileToDocx(fis);
+            return htmlConverter.convertHtmlToDocx(fis);
         } catch (IOException e) {
             throw new BoundesuWordsException("FILE_READ_ERROR", "读取HTML文件失败", e);
         }
@@ -125,7 +125,7 @@ public class BoundesuWordsService {
         
         try (FileInputStream fis = new FileInputStream(xmlFile)) {
             log.info("开始XML文件到DOCX转换: {}", xmlFile.getAbsolutePath());
-            return xmlConverter.convertXmlFileToDocx(fis);
+            return xmlConverter.convertXmlToDocx(fis);
         } catch (IOException e) {
             throw new BoundesuWordsException("FILE_READ_ERROR", "读取XML文件失败", e);
         }

@@ -58,17 +58,17 @@ public class XmlToDocxConverter {
     }
     
     /**
-     * 将XML文件转换为DOCX文档
+     * 将XML输入流转换为DOCX文档
      * 
-     * @param xmlInputStream XML文件输入流
+     * @param xmlInputStream XML输入流
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertXmlFileToDocx(InputStream xmlInputStream) throws BoundesuWordsException {
+    public XWPFDocument convertXmlToDocx(InputStream xmlInputStream) throws BoundesuWordsException {
         try {
-            log.info("开始转换XML文件到DOCX文档");
+            log.info("开始转换XML输入流到DOCX文档");
             
-            // 解析XML文件
+            // 解析XML输入流
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document xmlDoc = builder.parse(xmlInputStream);
@@ -79,12 +79,12 @@ public class XmlToDocxConverter {
             // 处理XML元素
             processXmlElements(xmlDoc, docxDoc);
             
-            log.info("XML文件到DOCX转换完成");
+            log.info("XML输入流到DOCX转换完成");
             return docxDoc;
             
         } catch (Exception e) {
-            log.error("XML文件到DOCX转换失败", e);
-            throw new BoundesuWordsException("XML_FILE_CONVERT_ERROR", "XML文件到DOCX转换失败", e);
+            log.error("XML输入流到DOCX转换失败", e);
+            throw new BoundesuWordsException("XML_STREAM_CONVERT_ERROR", "XML输入流到DOCX转换失败", e);
         }
     }
     

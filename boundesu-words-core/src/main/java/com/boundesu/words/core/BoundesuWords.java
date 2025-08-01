@@ -70,17 +70,6 @@ public class BoundesuWords {
     }
     
     /**
-     * 将HTML文件转换为DOCX文档
-     * 
-     * @param htmlFilePath HTML文件路径
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument htmlToDocx(String htmlFilePath) throws BoundesuWordsException {
-        return service.convertHtmlFileToDocx(new File(htmlFilePath));
-    }
-    
-    /**
      * 将XML内容转换为DOCX文档
      * 
      * @param xmlContent XML内容
@@ -100,17 +89,6 @@ public class BoundesuWords {
      */
     public XWPFDocument xmlToDocx(File xmlFile) throws BoundesuWordsException {
         return service.convertXmlFileToDocx(xmlFile);
-    }
-    
-    /**
-     * 将XML文件转换为DOCX文档
-     * 
-     * @param xmlFilePath XML文件路径
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument xmlToDocx(String xmlFilePath) throws BoundesuWordsException {
-        return service.convertXmlFileToDocx(new File(xmlFilePath));
     }
     
     /**
