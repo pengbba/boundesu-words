@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.boundesu</groupId>
+        <artifactId>boundesu-words</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>boundesu-words-all</artifactId>
+    <name>Boundesu Words All</name>
+    <description>Boundesu Words SDK - All modules aggregation</description>
+
+    <dependencies>
+        <!-- Common module -->
+        <dependency>
+            <groupId>com.boundesu</groupId>
+            <artifactId>boundesu-words-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <!-- HTML module -->
+        <dependency>
+            <groupId>com.boundesu</groupId>
+            <artifactId>boundesu-words-html</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <!-- XML module -->
+        <dependency>
+            <groupId>com.boundesu</groupId>
+            <artifactId>boundesu-words-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <!-- Core module -->
+        <dependency>
+            <groupId>com.boundesu</groupId>
+            <artifactId>boundesu-words-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
