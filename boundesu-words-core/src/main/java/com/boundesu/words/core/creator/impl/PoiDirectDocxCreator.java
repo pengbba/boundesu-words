@@ -1,10 +1,12 @@
 package com.boundesu.words.core.creator.impl;
 
 import com.boundesu.words.common.constants.DocxConstants;
-import com.boundesu.words.common.util.DocumentValidator;
 import com.boundesu.words.common.creator.DocumentCreator;
-import org.apache.poi.xwpf.usermodel.*;
+import com.boundesu.words.common.util.DocumentValidator;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
+import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -13,13 +15,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.util.Units;
 
 /**
  * 直接使用Apache POI创建DOCX文档的实现类
  * 提供最佳性能和完整功能支持
- * 
+ *
  * @author Boundesu Team
  * @version 1.0.0
  */
@@ -50,7 +50,7 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         this.pageNumberEnabled = false;
         this.headerImagePath = null;
         this.footerImagePath = null;
-        
+
         // 初始化文档属性
         try {
             initializeDocumentProperties();
@@ -78,16 +78,16 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         } catch (IllegalArgumentException e) {
             throw new IOException("文件路径验证失败: " + e.getMessage(), e);
         }
-        
+
         try {
             finalizeDocumentProperties();
         } catch (InvalidFormatException e) {
             throw new IOException("文档属性设置失败: " + e.getMessage(), e);
         }
-        
+
         // 应用页头页脚设置
         applyHeaderFooter();
-        
+
         try (FileOutputStream out = new FileOutputStream(outputPath.toFile())) {
             document.write(out);
         } catch (IllegalArgumentException e) {
@@ -102,10 +102,10 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         } catch (InvalidFormatException e) {
             throw new IOException("文档属性设置失败: " + e.getMessage(), e);
         }
-        
+
         // 应用页头页脚设置
         applyHeaderFooter();
-        
+
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             document.write(out);
             return out.toByteArray();
@@ -138,13 +138,13 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         if (text == null) {
             text = "";
         }
-        
+
         XWPFParagraph paragraph = document.createParagraph();
         XWPFRun run = paragraph.createRun();
         run.setText(text);
         run.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
         run.setFontSize(DocxConstants.DEFAULT_FONT_SIZE);
-        
+
         return this;
     }
 
@@ -153,26 +153,26 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         try {
             DocumentValidator.validateHeadingLevel(level);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("无效的标题级别: " + level + 
+            throw new IllegalArgumentException("无效的标题级别: " + level +
                     "。有效范围: 1-" + DocxConstants.MAX_HEADING_LEVEL, e);
         }
-        
+
         if (text == null || text.trim().isEmpty()) {
             throw new IllegalArgumentException("标题文本不能为空");
         }
-        
+
         XWPFParagraph heading = document.createParagraph();
         heading.setStyle("Heading " + level);
-        
+
         XWPFRun run = heading.createRun();
         run.setText(text.trim());
         run.setBold(true);
         run.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
-        
+
         // 根据级别设置字体大小
         int fontSize = DocxConstants.DEFAULT_FONT_SIZE + (DocxConstants.MAX_HEADING_LEVEL - level) * 2;
         run.setFontSize(Math.max(fontSize, DocxConstants.MIN_FONT_SIZE));
-        
+
         return this;
     }
 
@@ -187,13 +187,13 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         if (headers == null || headers.length == 0) {
             throw new IllegalArgumentException("表头不能为空");
         }
-        
+
         if (!DocumentValidator.isValidTableSize(rows != null ? rows.length : 0, headers.length)) {
             throw new IllegalArgumentException("表格大小超出限制");
         }
-        
+
         XWPFTable table = document.createTable();
-        
+
         // 创建表头
         XWPFTableRow headerRow = table.getRow(0);
         for (int i = 0; i < headers.length; i++) {
@@ -202,11 +202,11 @@ public class PoiDirectDocxCreator implements DocumentCreator {
             } else {
                 headerRow.addNewTableCell().setText(headers[i]);
             }
-            
+
             // 设置表头样式
             XWPFTableCell cell = headerRow.getCell(i);
             cell.setColor(DocxConstants.TABLE_HEADER_COLOR);
-            
+
             XWPFParagraph paragraph = cell.getParagraphs().get(0);
             XWPFRun run = paragraph.getRuns().get(0);
             if (run != null) {
@@ -215,14 +215,14 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                 run.setFontSize(DocxConstants.DEFAULT_FONT_SIZE);
             }
         }
-        
+
         // 添加数据行
         if (rows != null) {
             for (String[] row : rows) {
                 XWPFTableRow tableRow = table.createRow();
                 for (int i = 0; i < Math.min(row.length, headers.length); i++) {
                     tableRow.getCell(i).setText(row[i] != null ? row[i] : "");
-                    
+
                     // 设置数据行样式
                     XWPFTableCell cell = tableRow.getCell(i);
                     XWPFParagraph paragraph = cell.getParagraphs().get(0);
@@ -234,7 +234,7 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                 }
             }
         }
-        
+
         return this;
     }
 
@@ -249,17 +249,17 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         if (items == null || items.length == 0) {
             return this;
         }
-        
+
         for (int i = 0; i < items.length; i++) {
             XWPFParagraph paragraph = document.createParagraph();
             XWPFRun run = paragraph.createRun();
-            
+
             String prefix = numbered ? (i + 1) + ". " : "• ";
             run.setText(prefix + (items[i] != null ? items[i] : ""));
             run.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
             run.setFontSize(DocxConstants.DEFAULT_FONT_SIZE);
         }
-        
+
         return this;
     }
 
@@ -292,16 +292,16 @@ public class PoiDirectDocxCreator implements DocumentCreator {
      */
     private void finalizeDocumentProperties() throws InvalidFormatException {
         org.apache.poi.ooxml.POIXMLProperties.CoreProperties coreProperties = document.getProperties().getCoreProperties();
-        
+
         if (!documentTitle.isEmpty()) {
             coreProperties.setTitle(documentTitle);
         }
-        
+
         if (!documentAuthor.isEmpty()) {
             coreProperties.setCreator(documentAuthor);
             coreProperties.setLastModifiedByUser(documentAuthor);
         }
-        
+
         // 更新修改时间
         coreProperties.setModified(LocalDateTime.now().format(
                 DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
@@ -393,16 +393,16 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                 if (headerFooterPolicy == null) {
                     headerFooterPolicy = document.createHeaderFooterPolicy();
                 }
-                
+
                 XWPFHeader header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
                 XWPFParagraph headerParagraph = header.createParagraph();
                 headerParagraph.setAlignment(ParagraphAlignment.CENTER);
-                
+
                 // 添加页头图片
                 if (headerImagePath != null) {
                     addImageToHeaderFooter(headerParagraph, headerImagePath, headerImageWidth, headerImageHeight);
                 }
-                
+
                 // 添加页头文本
                 if (!headerText.isEmpty()) {
                     XWPFRun headerRun = headerParagraph.createRun();
@@ -411,32 +411,32 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                     headerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
                 }
             }
-            
+
             // 创建页脚
             if (!footerText.isEmpty() || pageNumberEnabled || footerImagePath != null) {
                 XWPFHeaderFooterPolicy headerFooterPolicy = document.getHeaderFooterPolicy();
                 if (headerFooterPolicy == null) {
                     headerFooterPolicy = document.createHeaderFooterPolicy();
                 }
-                
+
                 XWPFFooter footer = headerFooterPolicy.createFooter(XWPFHeaderFooterPolicy.DEFAULT);
                 XWPFParagraph footerParagraph = footer.createParagraph();
                 footerParagraph.setAlignment(ParagraphAlignment.CENTER);
-                
+
                 // 添加页脚图片
                 if (footerImagePath != null) {
                     addImageToHeaderFooter(footerParagraph, footerImagePath, footerImageWidth, footerImageHeight);
                 }
-                
+
                 // 添加页脚文本和页码
                 if (!footerText.isEmpty() || pageNumberEnabled) {
                     XWPFRun footerRun = footerParagraph.createRun();
-                    
+
                     String footerContent = "";
                     if (!footerText.isEmpty()) {
                         footerContent = footerText;
                     }
-                    
+
                     if (pageNumberEnabled) {
                         if (!footerContent.isEmpty()) {
                             footerContent += " - ";
@@ -445,10 +445,10 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                         footerRun.setText(footerContent);
                         footerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
                         footerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
-                        
+
                         // 添加页码字段
                         footerParagraph.getCTP().addNewFldSimple().setInstr("PAGE");
-                        
+
                         XWPFRun pageRun = footerParagraph.createRun();
                         pageRun.setText(" 页");
                         pageRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
@@ -472,7 +472,7 @@ public class PoiDirectDocxCreator implements DocumentCreator {
     private void addImageToHeaderFooter(XWPFParagraph paragraph, String imagePath, int width, int height) {
         try (FileInputStream imageStream = new FileInputStream(imagePath)) {
             XWPFRun imageRun = paragraph.createRun();
-            
+
             // 确定图片格式
             int format = XWPFDocument.PICTURE_TYPE_PNG;
             String fileName = imagePath.toLowerCase();
@@ -483,15 +483,15 @@ public class PoiDirectDocxCreator implements DocumentCreator {
             } else if (fileName.endsWith(".bmp")) {
                 format = XWPFDocument.PICTURE_TYPE_BMP;
             }
-            
+
             // 如果指定了尺寸，使用指定尺寸；否则使用默认尺寸
             if (width > 0 && height > 0) {
-                imageRun.addPicture(imageStream, format, imagePath, 
-                    Units.toEMU(width), Units.toEMU(height));
+                imageRun.addPicture(imageStream, format, imagePath,
+                        Units.toEMU(width), Units.toEMU(height));
             } else {
                 // 使用默认尺寸 (100x50 像素)
-                imageRun.addPicture(imageStream, format, imagePath, 
-                    Units.toEMU(100), Units.toEMU(50));
+                imageRun.addPicture(imageStream, format, imagePath,
+                        Units.toEMU(100), Units.toEMU(50));
             }
         } catch (Exception e) {
             System.err.println("添加图片到页头/页脚失败: " + e.getMessage());

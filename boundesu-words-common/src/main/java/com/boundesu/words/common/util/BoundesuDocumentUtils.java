@@ -48,14 +48,14 @@ public class BoundesuDocumentUtils {
         if (text == null || text.trim().isEmpty()) {
             return 0;
         }
-        
+
         text = text.trim();
         int wordCount = 0;
         boolean inWord = false;
-        
+
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
-            
+
             if (isChinese(c)) {
                 wordCount++;
             } else if (Character.isLetterOrDigit(c)) {
@@ -67,7 +67,7 @@ public class BoundesuDocumentUtils {
                 inWord = false;
             }
         }
-        
+
         return wordCount;
     }
 

@@ -49,7 +49,7 @@ public final class DocumentValidator {
      */
     public static void validateFormat(String format) {
         Objects.requireNonNull(format, "文档格式不能为null");
-        
+
         if (!isValidFormat(format.toLowerCase())) {
             throw new IllegalArgumentException(
                     String.format(DocxConstants.ERROR_INVALID_FORMAT, format)
@@ -84,7 +84,7 @@ public final class DocumentValidator {
                     String.format(DocxConstants.ERROR_INVALID_TABLE_SIZE, rows, cols)
             );
         }
-        
+
         if (cols < DocxConstants.MIN_TABLE_COLS || cols > DocxConstants.MAX_TABLE_COLS) {
             throw new IllegalArgumentException(
                     String.format(DocxConstants.ERROR_INVALID_TABLE_SIZE, rows, cols)
@@ -101,14 +101,14 @@ public final class DocumentValidator {
      */
     public static boolean isValidTableSize(int rows, int cols) {
         return rows >= DocxConstants.MIN_TABLE_ROWS && rows <= DocxConstants.MAX_TABLE_ROWS &&
-               cols >= DocxConstants.MIN_TABLE_COLS && cols <= DocxConstants.MAX_TABLE_COLS;
+                cols >= DocxConstants.MIN_TABLE_COLS && cols <= DocxConstants.MAX_TABLE_COLS;
     }
 
     /**
      * 验证表格索引
      *
-     * @param row 行索引
-     * @param col 列索引
+     * @param row       行索引
+     * @param col       列索引
      * @param totalRows 总行数
      * @param totalCols 总列数
      * @throws IllegalArgumentException 如果索引无效
@@ -119,7 +119,7 @@ public final class DocumentValidator {
                     String.format(DocxConstants.ERROR_INVALID_TABLE_INDEX, row)
             );
         }
-        
+
         if (col < 0 || col >= totalCols) {
             throw new IllegalArgumentException(
                     String.format(DocxConstants.ERROR_INVALID_TABLE_INDEX, col)
@@ -135,7 +135,7 @@ public final class DocumentValidator {
      */
     public static void validateFilePath(Path filePath) {
         Objects.requireNonNull(filePath, "文件路径不能为null");
-        
+
         String fileName = filePath.getFileName().toString();
         if (!VALID_FILENAME_PATTERN.matcher(fileName).matches()) {
             throw new IllegalArgumentException("文件名包含非法字符: " + fileName);
@@ -175,15 +175,15 @@ public final class DocumentValidator {
      */
     private static boolean isValidFormat(String format) {
         return DocxConstants.FORMAT_DOCX.equals(format) ||
-               DocxConstants.FORMAT_HTML.equals(format) ||
-               DocxConstants.FORMAT_MARKDOWN.equals(format) ||
-               DocxConstants.FORMAT_TEXT.equals(format);
+                DocxConstants.FORMAT_HTML.equals(format) ||
+                DocxConstants.FORMAT_MARKDOWN.equals(format) ||
+                DocxConstants.FORMAT_TEXT.equals(format);
     }
 
     /**
      * 验证字符串不为空
      *
-     * @param value 值
+     * @param value     值
      * @param fieldName 字段名
      * @throws IllegalArgumentException 如果值为空
      */
@@ -196,9 +196,9 @@ public final class DocumentValidator {
     /**
      * 验证数值范围
      *
-     * @param value 值
-     * @param min 最小值
-     * @param max 最大值
+     * @param value     值
+     * @param min       最小值
+     * @param max       最大值
      * @param fieldName 字段名
      * @throws IllegalArgumentException 如果值超出范围
      */

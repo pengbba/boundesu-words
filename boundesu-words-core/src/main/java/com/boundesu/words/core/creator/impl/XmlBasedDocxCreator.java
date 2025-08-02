@@ -1,7 +1,6 @@
 package com.boundesu.words.core.creator.impl;
 
 import com.boundesu.words.common.creator.DocumentCreator;
-import com.boundesu.words.xml.creator.XmlToDocxCreator;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -11,7 +10,7 @@ import java.util.List;
 /**
  * 通过XML转换创建DOCX文档的实现类
  * 提供结构化程度最高的文档创建方式
- * 
+ *
  * @author Boundesu Team
  * @version 1.0.0
  */
@@ -48,25 +47,25 @@ public class XmlBasedDocxCreator implements DocumentCreator {
     public void createDocument(Path outputPath) throws IOException {
         try {
             com.boundesu.words.xml.creator.XmlToDocxCreator converter = new com.boundesu.words.xml.creator.XmlToDocxCreator();
-            
+
             if (!documentTitle.isEmpty()) {
                 converter.setTitle(documentTitle);
             }
-            
+
             if (!documentAuthor.isEmpty()) {
                 converter.setAuthor(documentAuthor);
             }
-            
+
             // 添加XML内容
             for (String content : xmlContent) {
                 converter.addParagraph(content);
             }
-            
+
             org.apache.poi.xwpf.usermodel.XWPFDocument document = converter.createDocument();
-            
+
             // 应用页头页脚设置
             applyHeaderFooter(document);
-            
+
             try (java.io.FileOutputStream out = new java.io.FileOutputStream(outputPath.toFile())) {
                 document.write(out);
             }
@@ -80,20 +79,20 @@ public class XmlBasedDocxCreator implements DocumentCreator {
     public byte[] createDocumentAsBytes() throws IOException {
         try {
             com.boundesu.words.xml.creator.XmlToDocxCreator converter = new com.boundesu.words.xml.creator.XmlToDocxCreator();
-            
+
             if (!documentTitle.isEmpty()) {
                 converter.setTitle(documentTitle);
             }
-            
+
             if (!documentAuthor.isEmpty()) {
                 converter.setAuthor(documentAuthor);
             }
-            
+
             // 添加XML内容
             for (String content : xmlContent) {
                 converter.addParagraph(content);
             }
-            
+
             return converter.exportToBytes();
         } catch (Exception e) {
             throw new IOException("Failed to create document bytes: " + e.getMessage(), e);
@@ -117,7 +116,7 @@ public class XmlBasedDocxCreator implements DocumentCreator {
         if (text == null) {
             text = "";
         }
-        
+
         // 处理换行符
         String[] lines = text.split("\n");
         for (String line : lines) {
@@ -127,7 +126,7 @@ public class XmlBasedDocxCreator implements DocumentCreator {
                 xmlContent.add("<paragraph>" + escapeXml(line) + "</paragraph>");
             }
         }
-        
+
         return this;
     }
 
@@ -136,11 +135,11 @@ public class XmlBasedDocxCreator implements DocumentCreator {
         if (text == null || text.trim().isEmpty()) {
             throw new IllegalArgumentException("标题文本不能为空");
         }
-        
+
         if (level < 1 || level > 6) {
             throw new IllegalArgumentException("标题级别必须在1-6之间");
         }
-        
+
         xmlContent.add("<heading level='" + level + "'>" + escapeXml(text.trim()) + "</heading>");
         return this;
     }
@@ -169,10 +168,10 @@ public class XmlBasedDocxCreator implements DocumentCreator {
         if (headers == null || headers.length == 0) {
             throw new IllegalArgumentException("表头不能为空");
         }
-        
+
         StringBuilder tableXml = new StringBuilder();
         tableXml.append("<table>");
-        
+
         // 添加表头
         tableXml.append("<header>");
         for (String header : headers) {
@@ -181,7 +180,7 @@ public class XmlBasedDocxCreator implements DocumentCreator {
                     .append("</cell>");
         }
         tableXml.append("</header>");
-        
+
         // 添加数据行
         if (rows != null && rows.length > 0) {
             for (String[] row : rows) {
@@ -195,10 +194,10 @@ public class XmlBasedDocxCreator implements DocumentCreator {
                 tableXml.append("</row>");
             }
         }
-        
+
         tableXml.append("</table>");
         xmlContent.add(tableXml.toString());
-        
+
         return this;
     }
 
@@ -213,20 +212,20 @@ public class XmlBasedDocxCreator implements DocumentCreator {
         if (items == null || items.length == 0) {
             return this;
         }
-        
+
         String listType = numbered ? "ordered" : "unordered";
         StringBuilder listXml = new StringBuilder();
         listXml.append("<list type='").append(listType).append("'>");
-        
+
         for (String item : items) {
             listXml.append("<item>")
-                   .append(escapeXml(item != null ? item : ""))
-                   .append("</item>");
+                    .append(escapeXml(item != null ? item : ""))
+                    .append("</item>");
         }
-        
+
         listXml.append("</list>");
         xmlContent.add(listXml.toString());
-        
+
         return this;
     }
 
@@ -327,15 +326,15 @@ public class XmlBasedDocxCreator implements DocumentCreator {
      */
     public XmlBasedDocxCreator addSection(String title, String content) {
         xmlContent.add("<section>");
-        
+
         if (title != null && !title.trim().isEmpty()) {
             xmlContent.add("<title>" + escapeXml(title) + "</title>");
         }
-        
+
         if (content != null && !content.trim().isEmpty()) {
             xmlContent.add("<content>" + escapeXml(content) + "</content>");
         }
-        
+
         xmlContent.add("</section>");
         return this;
     }
@@ -347,34 +346,34 @@ public class XmlBasedDocxCreator implements DocumentCreator {
      */
     private String buildFullXmlDocument() {
         StringBuilder xml = new StringBuilder();
-        
+
         xml.append("<?xml version='1.0' encoding='UTF-8'?>");
         xml.append("<document>");
-        
+
         // 添加文档元数据
         if (!documentTitle.isEmpty() || !documentAuthor.isEmpty()) {
             xml.append("<metadata>");
-            
+
             if (!documentTitle.isEmpty()) {
                 xml.append("<title>").append(escapeXml(documentTitle)).append("</title>");
             }
-            
+
             if (!documentAuthor.isEmpty()) {
                 xml.append("<author>").append(escapeXml(documentAuthor)).append("</author>");
             }
-            
+
             xml.append("</metadata>");
         }
-        
+
         // 添加文档内容
         xml.append("<content>");
         for (String content : xmlContent) {
             xml.append(content);
         }
         xml.append("</content>");
-        
+
         xml.append("</document>");
-        
+
         return xml.toString();
     }
 
@@ -388,12 +387,12 @@ public class XmlBasedDocxCreator implements DocumentCreator {
         if (text == null) {
             return "";
         }
-        
+
         return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;")
-                   .replace("\"", "&quot;")
-                   .replace("'", "&apos;");
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
 
     /**
@@ -480,7 +479,7 @@ public class XmlBasedDocxCreator implements DocumentCreator {
                 if (headerFooterPolicy == null) {
                     headerFooterPolicy = document.createHeaderFooterPolicy();
                 }
-                
+
                 org.apache.poi.xwpf.usermodel.XWPFHeader header = headerFooterPolicy.createHeader(org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy.DEFAULT);
                 org.apache.poi.xwpf.usermodel.XWPFParagraph headerParagraph = header.createParagraph();
                 headerParagraph.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER);
@@ -489,24 +488,24 @@ public class XmlBasedDocxCreator implements DocumentCreator {
                 headerRun.setFontFamily("Times New Roman");
                 headerRun.setFontSize(10);
             }
-            
+
             // 创建页脚
             if (!footerText.isEmpty() || pageNumberEnabled) {
                 org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy headerFooterPolicy = document.getHeaderFooterPolicy();
                 if (headerFooterPolicy == null) {
                     headerFooterPolicy = document.createHeaderFooterPolicy();
                 }
-                
+
                 org.apache.poi.xwpf.usermodel.XWPFFooter footer = headerFooterPolicy.createFooter(org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy.DEFAULT);
                 org.apache.poi.xwpf.usermodel.XWPFParagraph footerParagraph = footer.createParagraph();
                 footerParagraph.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.CENTER);
                 org.apache.poi.xwpf.usermodel.XWPFRun footerRun = footerParagraph.createRun();
-                
+
                 String footerContent = "";
                 if (!footerText.isEmpty()) {
                     footerContent = footerText;
                 }
-                
+
                 if (pageNumberEnabled) {
                     if (!footerContent.isEmpty()) {
                         footerContent += " - ";
@@ -515,10 +514,10 @@ public class XmlBasedDocxCreator implements DocumentCreator {
                     footerRun.setText(footerContent);
                     footerRun.setFontFamily("Times New Roman");
                     footerRun.setFontSize(10);
-                    
+
                     // 添加页码字段
                     footerParagraph.getCTP().addNewFldSimple().setInstr("PAGE");
-                    
+
                     org.apache.poi.xwpf.usermodel.XWPFRun pageRun = footerParagraph.createRun();
                     pageRun.setText(" 页");
                     pageRun.setFontFamily("Times New Roman");

@@ -8,7 +8,8 @@
 
 ## 📖 项目简介
 
-Boundesu Words SDK 是一个功能强大的Java文档处理工具包，提供了HTML和XML内容到Microsoft Word DOCX格式的高质量转换功能。该SDK采用模块化设计，支持多种转换方式，并提供了丰富的API接口。
+Boundesu Words SDK 是一个功能强大的Java文档处理工具包，提供了HTML和XML内容到Microsoft Word
+DOCX格式的高质量转换功能。该SDK采用模块化设计，支持多种转换方式，并提供了丰富的API接口。
 
 ### ✨ 核心特性
 
@@ -33,13 +34,13 @@ boundesu-words/
 
 ### 模块说明
 
-| 模块 | 功能描述 |
-|------|----------|
-| **boundesu-words-all** | 聚合所有功能的统一入口，提供最简单的使用方式 |
-| **boundesu-words-core** | 核心转换引擎，包含文档创建器和高级生成器 |
-| **boundesu-words-html** | HTML解析和转换功能，支持丰富的HTML标签 |
-| **boundesu-words-xml** | XML解析和转换功能，支持结构化文档生成 |
-| **boundesu-words-common** | 公共工具类、常量定义和异常处理 |
+| 模块                        | 功能描述                    |
+|---------------------------|-------------------------|
+| **boundesu-words-all**    | 聚合所有功能的统一入口，提供最简单的使用方式  |
+| **boundesu-words-core**   | 核心转换引擎，包含文档创建器和高级生成器    |
+| **boundesu-words-html**   | HTML解析和转换功能，支持丰富的HTML标签 |
+| **boundesu-words-xml**    | XML解析和转换功能，支持结构化文档生成    |
+| **boundesu-words-common** | 公共工具类、常量定义和异常处理         |
 
 ## 🚀 快速开始
 
@@ -51,6 +52,7 @@ boundesu-words/
 ### 安装依赖
 
 ```xml
+
 <dependency>
     <groupId>com.boundesu</groupId>
     <artifactId>boundesu-words-all</artifactId>
@@ -70,15 +72,15 @@ public class Example {
     public static void main(String[] args) {
         // 创建SDK实例
         BoundesuWordsAll sdk = new BoundesuWordsAll();
-        
+
         try {
             // HTML内容转换
             String htmlContent = "<h1>标题</h1><p>这是一个段落。</p>";
             XWPFDocument document = sdk.htmlToDocx(htmlContent);
-            
+
             // 保存文档
             sdk.saveToFile(document, new File("output.docx"));
-            
+
             System.out.println("转换完成！");
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,7 +95,9 @@ public class Example {
 // XML内容转换
 String xmlContent = "<document><title>XML标题</title><paragraph>这是XML段落。</paragraph></document>";
 XWPFDocument document = sdk.xmlToDocx(xmlContent);
-sdk.saveToFile(document, new File("xml_output.docx"));
+sdk.
+
+saveToFile(document, new File("xml_output.docx"));
 ```
 
 #### 3. 文件转换
@@ -102,7 +106,9 @@ sdk.saveToFile(document, new File("xml_output.docx"));
 // 自动识别文件类型并转换
 File inputFile = new File("input.html");
 File outputFile = new File("output.docx");
-sdk.convert(inputFile, outputFile);
+sdk.
+
+convert(inputFile, outputFile);
 ```
 
 ### 高级功能
@@ -116,15 +122,21 @@ import com.boundesu.words.core.advanced.AdvancedDocumentGenerator;
 // 创建高级文档生成器
 AdvancedDocumentGenerator generator = BoundesuWordsSDK.createAdvancedGenerator();
 
-// 生成技术文档
-Map<String, String> sections = new HashMap<>();
-sections.put("概述", "这是项目概述内容...");
-sections.put("技术架构", "这是技术架构说明...");
+        // 生成技术文档
+        Map<String, String> sections = new HashMap<>();
+sections.
 
-BoundesuWordsSDK.Utils.createTechnicalDocument(
+        put("概述","这是项目概述内容...");
+sections.
+
+        put("技术架构","这是技术架构说明...");
+
+BoundesuWordsSDK.Utils.
+
+        createTechnicalDocument(
     "项目技术文档",
-    "开发团队",
-    "本文档介绍了项目的技术实现...",
+            "开发团队",
+            "本文档介绍了项目的技术实现...",
     sections,
     "总结内容",
     Paths.get("technical_doc.docx")
@@ -138,14 +150,14 @@ import com.boundesu.words.html.converter.HtmlToDocxConverter;
 
 // 创建页边距设置
 HtmlToDocxConverter.PageMargins margins = new HtmlToDocxConverter.PageMargins(
-    1440, // 上边距 (1英寸 = 1440 twips)
-    1440, // 下边距
-    1440, // 左边距
-    1440  // 右边距
+        1440, // 上边距 (1英寸 = 1440 twips)
+        1440, // 下边距
+        1440, // 左边距
+        1440  // 右边距
 );
 
-// 转换时应用页边距
-XWPFDocument document = sdk.getHtmlConverter().convertHtmlToDocx(htmlContent, margins);
+        // 转换时应用页边距
+        XWPFDocument document = sdk.getHtmlConverter().convertHtmlToDocx(htmlContent, margins);
 ```
 
 ## 📚 API 文档
@@ -153,26 +165,32 @@ XWPFDocument document = sdk.getHtmlConverter().convertHtmlToDocx(htmlContent, ma
 ### 主要类说明
 
 #### BoundesuWordsAll
+
 聚合所有功能的主入口类，提供最简单的使用方式。
 
 **主要方法：**
+
 - `htmlToDocx(String htmlContent)` - HTML内容转换
 - `xmlToDocx(String xmlContent)` - XML内容转换
 - `convertToDocx(File inputFile)` - 自动识别文件类型转换
 - `convert(File inputFile, File outputFile)` - 一键转换并保存
 
 #### BoundesuWordsSDK
+
 提供更多高级功能的SDK入口类。
 
 **主要方法：**
+
 - `createDocumentCreator(String type)` - 创建文档创建器
 - `createAdvancedGenerator()` - 创建高级文档生成器
 - `convertHtmlToDocx(String htmlContent, Path outputPath)` - HTML转换并保存
 
 #### HtmlToDocxConverter
+
 专门的HTML转换器，支持更多自定义选项。
 
 **支持的HTML标签：**
+
 - 标题标签：`<h1>` - `<h6>`
 - 段落标签：`<p>`
 - 文本格式：`<b>`, `<strong>`, `<i>`, `<em>`
@@ -180,9 +198,11 @@ XWPFDocument document = sdk.getHtmlConverter().convertHtmlToDocx(htmlContent, ma
 - 表格标签：`<table>`, `<tr>`, `<td>`, `<th>`
 
 #### XmlToDocxConverter
+
 专门的XML转换器，支持结构化文档生成。
 
 **支持的XML元素：**
+
 - `<heading level="1-6">` - 标题
 - `<paragraph>` - 段落
 - `<table>` - 表格
@@ -195,13 +215,23 @@ XWPFDocument document = sdk.getHtmlConverter().convertHtmlToDocx(htmlContent, ma
 ```java
 // 设置文档属性
 AdvancedDocumentGenerator.DocumentConfig config = new AdvancedDocumentGenerator.DocumentConfig();
-config.setGenerateToc(true);           // 生成目录
-config.setGenerateCoverPage(true);     // 生成封面
-config.setTocTitle("目录");            // 目录标题
-config.setCompany("公司名称");         // 公司名称
+config.
+
+setGenerateToc(true);           // 生成目录
+config.
+
+setGenerateCoverPage(true);     // 生成封面
+config.
+
+setTocTitle("目录");            // 目录标题
+config.
+
+setCompany("公司名称");         // 公司名称
 
 AdvancedDocumentGenerator generator = BoundesuWordsSDK.createAdvancedGenerator();
-generator.setConfig(config);
+generator.
+
+setConfig(config);
 ```
 
 ### 性能监控
@@ -211,13 +241,17 @@ import com.boundesu.words.common.util.PerformanceMonitor;
 
 // 监控文档创建性能
 PerformanceMonitor.OperationContext context = BoundesuWordsSDK.createPerformanceMonitor();
-try {
-    // 执行文档转换操作
-    XWPFDocument document = sdk.htmlToDocx(htmlContent);
-} finally {
-    context.end();
-    System.out.println("转换耗时: " + context.getDuration() + "ms");
-}
+try{
+        // 执行文档转换操作
+        XWPFDocument document = sdk.htmlToDocx(htmlContent);
+}finally{
+        context.
+
+        end();
+    System.out.
+
+        println("转换耗时: "+context.getDuration() +"ms");
+        }
 ```
 
 ## 🧪 测试

@@ -1,13 +1,14 @@
 package com.boundesu.words.common.creator;
 
 import com.boundesu.words.common.constants.HeaderFooterConstants;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
 /**
  * 文档创建器接口
  * 支持多种方式创建DOCX文档
- * 
+ *
  * @author Boundesu Team
  * @version 1.0.0
  */
@@ -74,7 +75,7 @@ public interface DocumentCreator {
      * 设置页头并插入图片
      *
      * @param headerText 页头文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     DocumentCreator setHeaderWithImage(String headerText, String imagePath);
@@ -83,9 +84,9 @@ public interface DocumentCreator {
      * 设置页头并插入图片（带尺寸控制）
      *
      * @param headerText 页头文本
-     * @param imagePath 图片文件路径
-     * @param width 图片宽度（像素）
-     * @param height 图片高度（像素）
+     * @param imagePath  图片文件路径
+     * @param width      图片宽度（像素）
+     * @param height     图片高度（像素）
      * @return 当前创建器实例
      */
     DocumentCreator setHeaderWithImage(String headerText, String imagePath, int width, int height);
@@ -102,7 +103,7 @@ public interface DocumentCreator {
      * 设置页脚并插入图片
      *
      * @param footerText 页脚文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     DocumentCreator setFooterWithImage(String footerText, String imagePath);
@@ -111,9 +112,9 @@ public interface DocumentCreator {
      * 设置页脚并插入图片（带尺寸控制）
      *
      * @param footerText 页脚文本
-     * @param imagePath 图片文件路径
-     * @param width 图片宽度（像素）
-     * @param height 图片高度（像素）
+     * @param imagePath  图片文件路径
+     * @param width      图片宽度（像素）
+     * @param height     图片高度（像素）
      * @return 当前创建器实例
      */
     DocumentCreator setFooterWithImage(String footerText, String imagePath, int width, int height);
@@ -131,12 +132,12 @@ public interface DocumentCreator {
     /**
      * 设置页头并插入图片（带完整配置）
      *
-     * @param headerText 页头文本
-     * @param imagePath 图片文件路径
+     * @param headerText  页头文本
+     * @param imagePath   图片文件路径
      * @param imageConfig 图片配置（尺寸和对齐方式）
      * @return 当前创建器实例
      */
-    default DocumentCreator setHeaderWithImageAdvanced(String headerText, String imagePath, 
+    default DocumentCreator setHeaderWithImageAdvanced(String headerText, String imagePath,
                                                        HeaderFooterConstants.ImageConfig imageConfig) {
         return setHeaderWithImage(headerText, imagePath, imageConfig.getWidth(), imageConfig.getHeight());
     }
@@ -144,12 +145,12 @@ public interface DocumentCreator {
     /**
      * 设置页脚并插入图片（带完整配置）
      *
-     * @param footerText 页脚文本
-     * @param imagePath 图片文件路径
+     * @param footerText  页脚文本
+     * @param imagePath   图片文件路径
      * @param imageConfig 图片配置（尺寸和对齐方式）
      * @return 当前创建器实例
      */
-    default DocumentCreator setFooterWithImageAdvanced(String footerText, String imagePath, 
+    default DocumentCreator setFooterWithImageAdvanced(String footerText, String imagePath,
                                                        HeaderFooterConstants.ImageConfig imageConfig) {
         return setFooterWithImage(footerText, imagePath, imageConfig.getWidth(), imageConfig.getHeight());
     }
@@ -158,7 +159,7 @@ public interface DocumentCreator {
      * 设置页头图片（占满页面宽度）
      *
      * @param headerText 页头文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     default DocumentCreator setHeaderWithFullWidthImage(String headerText, String imagePath) {
@@ -170,7 +171,7 @@ public interface DocumentCreator {
      * 设置页脚图片（占满页面宽度）
      *
      * @param footerText 页脚文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     default DocumentCreator setFooterWithFullWidthImage(String footerText, String imagePath) {
@@ -182,7 +183,7 @@ public interface DocumentCreator {
      * 设置页头图片（小尺寸）
      *
      * @param headerText 页头文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     default DocumentCreator setHeaderWithSmallImage(String headerText, String imagePath) {
@@ -194,7 +195,7 @@ public interface DocumentCreator {
      * 设置页脚图片（小尺寸）
      *
      * @param footerText 页脚文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     default DocumentCreator setFooterWithSmallImage(String footerText, String imagePath) {
@@ -206,7 +207,7 @@ public interface DocumentCreator {
      * 设置页头图片（大尺寸）
      *
      * @param headerText 页头文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     default DocumentCreator setHeaderWithLargeImage(String headerText, String imagePath) {
@@ -218,7 +219,7 @@ public interface DocumentCreator {
      * 设置页脚图片（大尺寸）
      *
      * @param footerText 页脚文本
-     * @param imagePath 图片文件路径
+     * @param imagePath  图片文件路径
      * @return 当前创建器实例
      */
     default DocumentCreator setFooterWithLargeImage(String footerText, String imagePath) {

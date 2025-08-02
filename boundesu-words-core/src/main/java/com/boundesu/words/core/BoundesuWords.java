@@ -7,30 +7,32 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
  * Boundesu Words SDK 主入口类
- * 
+ *
  * @author Boundesu
  * @version 1.0.0
  */
 public class BoundesuWords {
-    
+
     private static final Logger log = LoggerFactory.getLogger(BoundesuWords.class);
-    
+
     /**
      * 构造函数
      */
     public BoundesuWords() {
         log.info("Boundesu Words Core 初始化完成");
     }
-    
+
     /**
      * 获取SDK版本信息
-     * 
+     *
      * @return SDK信息
      */
     public static Map<String, String> getSDKInfo() {
@@ -41,20 +43,20 @@ public class BoundesuWords {
         info.put("author", BoundesuConstants.SDK_AUTHOR);
         return info;
     }
-    
+
     /**
      * 获取SDK版本号
-     * 
+     *
      * @return 版本号
      */
     public static String getVersion() {
         return BoundesuConstants.SDK_VERSION;
     }
-    
+
     /**
      * 保存DOCX文档到文件
-     * 
-     * @param document DOCX文档
+     *
+     * @param document   DOCX文档
      * @param outputFile 输出文件
      * @throws BoundesuWordsException 保存异常
      */
@@ -65,14 +67,14 @@ public class BoundesuWords {
         if (outputFile == null) {
             throw new BoundesuWordsException("输出文件不能为空");
         }
-        
+
         try {
             // 确保父目录存在
             File parentDir = outputFile.getParentFile();
             if (parentDir != null && !parentDir.exists()) {
                 parentDir.mkdirs();
             }
-            
+
             try (FileOutputStream fos = new FileOutputStream(outputFile)) {
                 document.write(fos);
                 log.info("文档已保存到: {}", outputFile.getAbsolutePath());
@@ -81,11 +83,11 @@ public class BoundesuWords {
             throw new BoundesuWordsException("保存文档失败: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 保存DOCX文档到文件
-     * 
-     * @param document DOCX文档
+     *
+     * @param document       DOCX文档
      * @param outputFilePath 输出文件路径
      * @throws BoundesuWordsException 保存异常
      */

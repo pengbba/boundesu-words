@@ -12,26 +12,26 @@ import java.nio.file.Paths;
  */
 public class HeadingTest {
     private static final String OUTPUT_DIR = "examples_output";
-    
+
     public static void main(String[] args) {
         System.out.println("=== 标题层级测试 ===");
-        
+
         try {
             // 创建输出目录
             createOutputDirectory();
-            
+
             // 测试标题层级
             testHeadingLevels();
-            
+
             System.out.println("\n=== 标题层级测试完成！===");
             System.out.println("输出文件位置: " + Paths.get(OUTPUT_DIR).toAbsolutePath());
-            
+
         } catch (Exception e) {
             System.err.println("测试过程中发生错误: " + e.getMessage());
             e.printStackTrace();
         }
     }
-    
+
     private static void createOutputDirectory() {
         File outputDir = new File(OUTPUT_DIR);
         if (!outputDir.exists()) {
@@ -39,10 +39,10 @@ public class HeadingTest {
             System.out.println("创建输出目录: " + outputDir.getAbsolutePath());
         }
     }
-    
+
     private static void testHeadingLevels() {
         System.out.println("\n=== 标题层级功能演示 ===");
-        
+
         String htmlContent = "<html>" +
                 "<head>" +
                 "<title>标题层级测试文档</title>" +
@@ -70,16 +70,16 @@ public class HeadingTest {
                 "<p>本文档展示了从H1到H6的所有标题层级，验证了HTML到Word文档的标题样式转换功能。</p>" +
                 "</body>" +
                 "</html>";
-        
+
         try {
             System.out.println("\n正在创建包含多级标题的测试文档...");
-            
+
             // 使用默认页边距创建文档
             HtmlToDocxConverter.PageMargins defaultMargins = HtmlToDocxConverter.PageMargins.defaultMargins();
             Path outputPath = Paths.get(OUTPUT_DIR, "heading_levels_test.docx");
-            
+
             BoundesuWordsSDK.convertHtmlToDocx(htmlContent, outputPath, defaultMargins);
-            
+
             System.out.println("测试文档已创建: heading_levels_test.docx");
             System.out.println("\n文档包含以下标题层级:");
             System.out.println("- H1: 第一级标题 (应显示为Word的标题1样式)");
@@ -89,7 +89,7 @@ public class HeadingTest {
             System.out.println("- H5: 第五级标题 (应显示为Word的标题5样式)");
             System.out.println("- H6: 第六级标题 (应显示为Word的标题6样式)");
             System.out.println("\n请打开生成的Word文档验证标题样式是否正确应用。");
-            
+
         } catch (Exception e) {
             System.err.println("标题层级测试失败: " + e.getMessage());
             e.printStackTrace();

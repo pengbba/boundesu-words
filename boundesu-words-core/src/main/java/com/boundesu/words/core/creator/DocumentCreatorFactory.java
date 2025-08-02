@@ -7,31 +7,11 @@ import com.boundesu.words.core.creator.impl.XmlBasedDocxCreator;
 /**
  * DOCX文档创建器工厂类
  * 提供三种不同的DOCX创建方式
- * 
+ *
  * @author Boundesu Team
  * @version 1.0.0
  */
 public class DocumentCreatorFactory {
-
-    /**
-     * 创建方式枚举
-     */
-    public enum CreatorType {
-        /**
-         * 直接使用POI类创建DOCX
-         */
-        DIRECT_POI,
-
-        /**
-         * 通过HTML转换创建DOCX
-         */
-        HTML_CONVERSION,
-
-        /**
-         * 通过XML转换创建DOCX
-         */
-        XML_CONVERSION
-    }
 
     /**
      * 创建文档创建器
@@ -64,8 +44,8 @@ public class DocumentCreatorFactory {
      * 创建HTML转换文档创建器
      * 注意：HTML转换器已移至html模块，请使用html模块中的HtmlToDocxCreator
      *
-     * @deprecated 请使用html模块中的HtmlToDocxCreator
      * @throws UnsupportedOperationException HTML转换器不在core模块中
+     * @deprecated 请使用html模块中的HtmlToDocxCreator
      */
     @Deprecated
     public static DocumentCreator createHtmlCreator() {
@@ -147,8 +127,8 @@ public class DocumentCreatorFactory {
         }
 
         String type = typeString.trim().toLowerCase();
-        return "poi".equals(type) || "direct".equals(type) || 
-               "html".equals(type) || "xml".equals(type);
+        return "poi".equals(type) || "direct".equals(type) ||
+                "html".equals(type) || "xml".equals(type);
     }
 
     /**
@@ -158,5 +138,25 @@ public class DocumentCreatorFactory {
      */
     public static DocumentCreator createDefaultCreator() {
         return createDirectCreator();
+    }
+
+    /**
+     * 创建方式枚举
+     */
+    public enum CreatorType {
+        /**
+         * 直接使用POI类创建DOCX
+         */
+        DIRECT_POI,
+
+        /**
+         * 通过HTML转换创建DOCX
+         */
+        HTML_CONVERSION,
+
+        /**
+         * 通过XML转换创建DOCX
+         */
+        XML_CONVERSION
     }
 }

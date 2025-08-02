@@ -73,7 +73,7 @@ public final class PerformanceMonitor {
      * 监控操作执行（有返回值）
      *
      * @param operationName 操作名称
-     * @param operation 要执行的操作
+     * @param operation     要执行的操作
      * @return 操作结果
      * @throws Exception 操作异常
      */
@@ -90,7 +90,7 @@ public final class PerformanceMonitor {
      * 监控操作执行（无返回值）
      *
      * @param operationName 操作名称
-     * @param operation 要执行的操作
+     * @param operation     要执行的操作
      * @throws Exception 操作异常
      */
     public static void monitor(String operationName, MonitoredVoidOperation operation) throws Exception {
@@ -112,7 +112,7 @@ public final class PerformanceMonitor {
         long count = operationCounts.getOrDefault(operationName, new AtomicLong(0)).get();
         long totalTime = operationTotalTime.getOrDefault(operationName, new AtomicLong(0)).get();
         double averageTime = count > 0 ? (double) totalTime / count : 0.0;
-        
+
         return new OperationStats(operationName, count, totalTime, averageTime);
     }
 
@@ -125,11 +125,11 @@ public final class PerformanceMonitor {
             OperationStats stats = getOperationStats(operationName);
             System.out.println(stats);
         });
-        
+
         if (operationCounts.isEmpty()) {
             System.out.println("暂无统计数据");
         }
-        
+
         System.out.println("===================");
     }
 
@@ -149,6 +149,22 @@ public final class PerformanceMonitor {
      */
     public static OperationContext getCurrentOperation() {
         return currentOperation.get();
+    }
+
+    /**
+     * 监控操作接口（有返回值）
+     */
+    @FunctionalInterface
+    public interface MonitoredOperation<T> {
+        T execute() throws Exception;
+    }
+
+    /**
+     * 监控操作接口（无返回值）
+     */
+    @FunctionalInterface
+    public interface MonitoredVoidOperation {
+        void execute() throws Exception;
     }
 
     /**
@@ -213,21 +229,5 @@ public final class PerformanceMonitor {
             return String.format("操作: %s, 执行次数: %d, 总耗时: %d ms, 平均耗时: %.2f ms",
                     operationName, count, totalTime, averageTime);
         }
-    }
-
-    /**
-     * 监控操作接口（有返回值）
-     */
-    @FunctionalInterface
-    public interface MonitoredOperation<T> {
-        T execute() throws Exception;
-    }
-
-    /**
-     * 监控操作接口（无返回值）
-     */
-    @FunctionalInterface
-    public interface MonitoredVoidOperation {
-        void execute() throws Exception;
     }
 }

@@ -4,12 +4,16 @@ import com.boundesu.words.common.exception.BoundesuWordsException;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayOutputStream;
@@ -21,24 +25,23 @@ import java.util.List;
 /**
  * 基于XML转换的DOCX创建器
  * 使用自定义XML格式，然后转换为DOCX
- * 
+ *
  * @author Boundesu Team
  * @version 1.0.0
  */
 public class XmlToDocxCreator {
-    
+
     private static final Logger log = LoggerFactory.getLogger(XmlToDocxCreator.class);
-    
+    private final List<XmlElement> xmlElements = new ArrayList<>();
     private String title = "";
     private String author = "";
-    private final List<XmlElement> xmlElements = new ArrayList<>();
     private org.w3c.dom.Document xmlDocument;
     private Element rootElement;
-    
+
     public XmlToDocxCreator() {
         initializeXmlDocument();
     }
-    
+
     /**
      * 初始化XML文档
      */
@@ -47,42 +50,24 @@ public class XmlToDocxCreator {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             xmlDocument = builder.newDocument();
-            
+
             // 创建根元素
             rootElement = xmlDocument.createElement("document");
             xmlDocument.appendChild(rootElement);
-            
+
             // 添加文档信息元素
             Element metaElement = xmlDocument.createElement("metadata");
             rootElement.appendChild(metaElement);
-            
+
             // 添加内容元素
             Element contentElement = xmlDocument.createElement("content");
             rootElement.appendChild(contentElement);
-            
+
         } catch (ParserConfigurationException e) {
             throw new RuntimeException("初始化XML文档失败", e);
         }
     }
-    
-    /**
-     * 设置文档标题
-     */
-    public XmlToDocxCreator setTitle(String title) {
-        this.title = title;
-        updateMetadata("title", title);
-        return this;
-    }
-    
-    /**
-     * 设置文档作者
-     */
-    public XmlToDocxCreator setAuthor(String author) {
-        this.author = author;
-        updateMetadata("author", author);
-        return this;
-    }
-    
+
     /**
      * 更新元数据
      */
@@ -90,7 +75,7 @@ public class XmlToDocxCreator {
         NodeList metaNodes = rootElement.getElementsByTagName("metadata");
         if (metaNodes.getLength() > 0) {
             Element metaElement = (Element) metaNodes.item(0);
-            
+
             // 查找或创建指定的元数据元素
             NodeList keyNodes = metaElement.getElementsByTagName(key);
             Element keyElement;
@@ -103,7 +88,7 @@ public class XmlToDocxCreator {
             keyElement.setTextContent(value);
         }
     }
-    
+
     /**
      * 添加标题
      */
@@ -111,21 +96,21 @@ public class XmlToDocxCreator {
         Element headingElement = xmlDocument.createElement("heading");
         headingElement.setAttribute("level", String.valueOf(level));
         headingElement.setTextContent(text);
-        
+
         addToContent(headingElement);
         xmlElements.add(new XmlElement("heading", text, "level=" + level));
-        
+
         log.debug("添加{}级标题: {}", level, text);
         return this;
     }
-    
+
     /**
      * 添加段落
      */
     public XmlToDocxCreator addParagraph(String text) {
         return addParagraph(text, false);
     }
-    
+
     /**
      * 添加段落（可指定是否加粗）
      */
@@ -135,14 +120,14 @@ public class XmlToDocxCreator {
             paragraphElement.setAttribute("style", "bold");
         }
         paragraphElement.setTextContent(text);
-        
+
         addToContent(paragraphElement);
         xmlElements.add(new XmlElement("paragraph", text, bold ? "style=bold" : ""));
-        
+
         log.debug("添加段落: {}", text.length() > 50 ? text.substring(0, 50) + "..." : text);
         return this;
     }
-    
+
     /**
      * 添加表格
      */
@@ -150,28 +135,28 @@ public class XmlToDocxCreator {
         if (data == null || data.length == 0) {
             return this;
         }
-        
+
         Element tableElement = xmlDocument.createElement("table");
-        
+
         for (String[] rowData : data) {
             Element rowElement = xmlDocument.createElement("row");
-            
+
             for (String cellData : rowData) {
                 Element cellElement = xmlDocument.createElement("cell");
                 cellElement.setTextContent(cellData != null ? cellData : "");
                 rowElement.appendChild(cellElement);
             }
-            
+
             tableElement.appendChild(rowElement);
         }
-        
+
         addToContent(tableElement);
         xmlElements.add(new XmlElement("table", "", "rows=" + data.length + ",cols=" + data[0].length));
-        
+
         log.debug("添加表格: {}行{}列", data.length, data[0].length);
         return this;
     }
-    
+
     /**
      * 添加列表
      */
@@ -179,23 +164,23 @@ public class XmlToDocxCreator {
         if (items == null || items.isEmpty()) {
             return this;
         }
-        
+
         Element listElement = xmlDocument.createElement("list");
         listElement.setAttribute("type", ordered ? "ordered" : "unordered");
-        
+
         for (String item : items) {
             Element itemElement = xmlDocument.createElement("item");
             itemElement.setTextContent(item);
             listElement.appendChild(itemElement);
         }
-        
+
         addToContent(listElement);
         xmlElements.add(new XmlElement("list", "", "type=" + (ordered ? "ordered" : "unordered") + ",items=" + items.size()));
-        
+
         log.debug("添加{}列表: {}项", ordered ? "有序" : "无序", items.size());
         return this;
     }
-    
+
     /**
      * 添加分页符
      */
@@ -203,11 +188,11 @@ public class XmlToDocxCreator {
         Element breakElement = xmlDocument.createElement("pagebreak");
         addToContent(breakElement);
         xmlElements.add(new XmlElement("pagebreak", "", ""));
-        
+
         log.debug("添加分页符");
         return this;
     }
-    
+
     /**
      * 添加元素到内容区域
      */
@@ -218,14 +203,14 @@ public class XmlToDocxCreator {
             contentElement.appendChild(element);
         }
     }
-    
+
     /**
      * 创建DOCX文档
      */
     public XWPFDocument createDocument() throws BoundesuWordsException {
         try {
             XWPFDocument document = new XWPFDocument();
-            
+
             // 设置文档属性
             if (!title.isEmpty()) {
                 document.getProperties().getCoreProperties().setTitle(title);
@@ -233,22 +218,22 @@ public class XmlToDocxCreator {
             if (!author.isEmpty()) {
                 document.getProperties().getCoreProperties().setCreator(author);
             }
-            
+
             // 处理XML内容
             NodeList contentNodes = rootElement.getElementsByTagName("content");
             if (contentNodes.getLength() > 0) {
                 Element contentElement = (Element) contentNodes.item(0);
                 processXmlElements(document, contentElement.getChildNodes());
             }
-            
+
             log.info("DOCX文档创建完成");
             return document;
-            
+
         } catch (Exception e) {
             throw new BoundesuWordsException("DOCUMENT_CREATION_ERROR", "创建DOCX文档失败: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 处理XML元素并转换为Word内容
      */
@@ -258,7 +243,7 @@ public class XmlToDocxCreator {
             if (node.getNodeType() == Node.ELEMENT_NODE) {
                 Element element = (Element) node;
                 String tagName = element.getTagName();
-                
+
                 switch (tagName) {
                     case "heading":
                         int level = Integer.parseInt(element.getAttribute("level"));
@@ -288,7 +273,7 @@ public class XmlToDocxCreator {
             }
         }
     }
-    
+
     /**
      * 添加标题到文档
      */
@@ -297,13 +282,13 @@ public class XmlToDocxCreator {
         XWPFRun run = paragraph.createRun();
         run.setText(text);
         run.setBold(true);
-        
+
         // 根据级别设置字体大小
         int fontSize = Math.max(12, 20 - level * 2);
         run.setFontSize(fontSize);
         run.setFontFamily("宋体");
     }
-    
+
     /**
      * 添加段落到文档
      */
@@ -315,7 +300,7 @@ public class XmlToDocxCreator {
         run.setFontSize(12);
         run.setFontFamily("宋体");
     }
-    
+
     /**
      * 添加表格到文档
      */
@@ -324,19 +309,19 @@ public class XmlToDocxCreator {
         if (rows.getLength() == 0) {
             return;
         }
-        
+
         XWPFTable table = document.createTable();
-        
+
         for (int i = 0; i < rows.getLength(); i++) {
             Element rowElement = (Element) rows.item(i);
             XWPFTableRow row = (i == 0) ? table.getRow(0) : table.createRow();
-            
+
             NodeList cells = rowElement.getElementsByTagName("cell");
             for (int j = 0; j < cells.getLength(); j++) {
                 Element cellElement = (Element) cells.item(j);
-                XWPFTableCell cell = (j == 0 && row.getTableCells().size() > 0) ? 
-                    row.getCell(0) : row.createCell();
-                
+                XWPFTableCell cell = (j == 0 && row.getTableCells().size() > 0) ?
+                        row.getCell(0) : row.createCell();
+
                 XWPFParagraph cellParagraph = cell.getParagraphs().get(0);
                 XWPFRun cellRun = cellParagraph.createRun();
                 cellRun.setText(cellElement.getTextContent());
@@ -345,17 +330,17 @@ public class XmlToDocxCreator {
             }
         }
     }
-    
+
     /**
      * 添加列表到文档
      */
     private void addListToDocument(XWPFDocument document, Element listElement, boolean ordered) {
         NodeList items = listElement.getElementsByTagName("item");
-        
+
         for (int i = 0; i < items.getLength(); i++) {
             Element itemElement = (Element) items.item(i);
             XWPFParagraph paragraph = document.createParagraph();
-            
+
             XWPFRun run = paragraph.createRun();
             String prefix = ordered ? (i + 1) + ". " : "• ";
             run.setText(prefix + itemElement.getTextContent());
@@ -363,7 +348,7 @@ public class XmlToDocxCreator {
             run.setFontFamily("宋体");
         }
     }
-    
+
     /**
      * 添加分页符到文档
      */
@@ -372,22 +357,22 @@ public class XmlToDocxCreator {
         XWPFRun run = paragraph.createRun();
         run.addBreak(BreakType.PAGE);
     }
-    
+
     /**
      * 导出为字节数组
      */
     public byte[] exportToBytes() throws BoundesuWordsException {
         try (XWPFDocument document = createDocument();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            
+
             document.write(outputStream);
             return outputStream.toByteArray();
-            
+
         } catch (IOException e) {
             throw new BoundesuWordsException("EXPORT_ERROR", "导出文档失败: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 获取当前XML内容（用于调试）
      */
@@ -397,7 +382,7 @@ public class XmlToDocxCreator {
             Transformer transformer = transformerFactory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-            
+
             StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(xmlDocument), new StreamResult(writer));
             return writer.toString();
@@ -405,7 +390,7 @@ public class XmlToDocxCreator {
             return "获取XML内容失败: " + e.getMessage();
         }
     }
-    
+
     /**
      * 清空所有内容
      */
@@ -414,32 +399,50 @@ public class XmlToDocxCreator {
         initializeXmlDocument();
         title = "";
         author = "";
-        
+
         log.debug("清空所有内容");
         return this;
     }
-    
+
     /**
      * 获取元素数量
      */
     public int getElementCount() {
         return xmlElements.size();
     }
-    
+
     /**
      * 获取文档标题
      */
     public String getTitle() {
         return title;
     }
-    
+
+    /**
+     * 设置文档标题
+     */
+    public XmlToDocxCreator setTitle(String title) {
+        this.title = title;
+        updateMetadata("title", title);
+        return this;
+    }
+
     /**
      * 获取文档作者
      */
     public String getAuthor() {
         return author;
     }
-    
+
+    /**
+     * 设置文档作者
+     */
+    public XmlToDocxCreator setAuthor(String author) {
+        this.author = author;
+        updateMetadata("author", author);
+        return this;
+    }
+
     /**
      * XML元素内部类
      */
@@ -447,25 +450,25 @@ public class XmlToDocxCreator {
         private final String tagName;
         private final String content;
         private final String attributes;
-        
+
         public XmlElement(String tagName, String content, String attributes) {
             this.tagName = tagName;
             this.content = content;
             this.attributes = attributes;
         }
-        
+
         public String getTagName() {
             return tagName;
         }
-        
+
         public String getContent() {
             return content;
         }
-        
+
         public String getAttributes() {
             return attributes;
         }
-        
+
         @Override
         public String toString() {
             return String.format("XmlElement{tagName='%s', content='%s', attributes='%s'}",

@@ -19,6 +19,7 @@ boundesu-words-core 是 Boundesu Words SDK 的核心模块，提供了文档转�
 ### 主入口类
 
 #### BoundesuWords
+
 核心SDK入口类，提供最常用的转换功能：
 
 ```java
@@ -37,11 +38,16 @@ XWPFDocument doc4 = sdk.xmlToDocx(xmlFile);
 XWPFDocument doc5 = sdk.convertToDocx(inputFile);
 
 // 一键转换并保存
-sdk.convert(inputFile, outputFile);
-sdk.convert("input.html", "output.docx");
+sdk.
+
+convert(inputFile, outputFile);
+sdk.
+
+convert("input.html","output.docx");
 ```
 
 #### BoundesuWordsService
+
 核心服务类，实现具体的转换逻辑：
 
 ```java
@@ -53,29 +59,39 @@ String version = BoundesuWordsService.getVersion();
 
 // 转换操作
 XWPFDocument document = service.convertHtmlToDocx(htmlContent);
-service.saveDocxToFile(document, outputFile);
+service.
+
+saveDocxToFile(document, outputFile);
 ```
 
 ### 文档创建器
 
 #### DocumentCreator 接口
+
 统一的文档创建器接口：
 
 ```java
 public interface DocumentCreator {
     DocumentCreator setTitle(String title);
+
     DocumentCreator setAuthor(String author);
+
     DocumentCreator addParagraph(String text);
+
     DocumentCreator addHeading(String text, int level);
+
     DocumentCreator setHeader(String headerText);
+
     DocumentCreator setFooter(String footerText);
-    
+
     void createDocument(Path outputPath) throws IOException;
+
     byte[] createDocumentAsBytes() throws IOException;
 }
 ```
 
 #### DocumentCreatorFactory
+
 文档创建器工厂，支持三种创建方式：
 
 ```java
@@ -90,7 +106,7 @@ DocumentCreator xmlCreator = DocumentCreatorFactory.createDocumentCreator("xml")
 
 // 使用枚举类型
 DocumentCreator creator = DocumentCreatorFactory.createDocumentCreator(
-    DocumentCreatorFactory.CreatorType.DIRECT_POI
+        DocumentCreatorFactory.CreatorType.DIRECT_POI
 );
 ```
 
@@ -103,6 +119,7 @@ DocumentCreator creator = DocumentCreatorFactory.createDocumentCreator(
 ### 高级文档生成器
 
 #### AdvancedDocumentGenerator
+
 支持复杂文档结构的高级生成器：
 
 ```java
@@ -111,27 +128,45 @@ AdvancedDocumentGenerator generator = new AdvancedDocumentGenerator();
 
 // 配置文档属性
 AdvancedDocumentGenerator.DocumentConfig config = new AdvancedDocumentGenerator.DocumentConfig();
-config.setGenerateToc(true);           // 生成目录
-config.setGenerateCoverPage(true);     // 生成封面
-config.setTocTitle("目录");            // 目录标题
-config.setCompany("公司名称");         // 公司名称
-generator.setConfig(config);
+config.
+
+setGenerateToc(true);           // 生成目录
+config.
+
+setGenerateCoverPage(true);     // 生成封面
+config.
+
+setTocTitle("目录");            // 目录标题
+config.
+
+setCompany("公司名称");         // 公司名称
+generator.
+
+setConfig(config);
 
 // 生成技术文档
 Map<String, String> sections = new HashMap<>();
-sections.put("概述", "项目概述内容...");
-sections.put("架构设计", "架构设计说明...");
+sections.
 
-generator.generateTechnicalDocument(
+put("概述","项目概述内容...");
+sections.
+
+put("架构设计","架构设计说明...");
+
+generator.
+
+generateTechnicalDocument(
     "技术文档标题",
-    "作者",
-    "文档介绍",
+            "作者",
+            "文档介绍",
     sections,
     "总结"
 );
 
 // 创建文档
-generator.createDocument(Paths.get("technical_doc.docx"));
+generator.
+
+createDocument(Paths.get("technical_doc.docx"));
 ```
 
 ## 🚀 使用示例
@@ -146,18 +181,18 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 public class CoreExample {
     public static void main(String[] args) {
         BoundesuWords sdk = new BoundesuWords();
-        
+
         try {
             // HTML内容转换
             String htmlContent = "<h1>标题</h1><p>段落内容</p>";
             XWPFDocument document = sdk.htmlToDocx(htmlContent);
             sdk.saveToFile(document, "output.docx");
-            
+
             // 文件转换
             sdk.convert("input.html", "output.docx");
-            
+
             System.out.println("转换完成！");
-            
+
         } catch (BoundesuWordsException e) {
             System.err.println("转换失败: " + e.getMessage());
         }
@@ -175,21 +210,21 @@ public class CreatorExample {
     public static void main(String[] args) throws IOException {
         // 创建POI文档创建器
         DocumentCreator creator = DocumentCreatorFactory
-            .createDocumentCreator(DocumentCreatorFactory.CreatorType.DIRECT_POI);
-        
+                .createDocumentCreator(DocumentCreatorFactory.CreatorType.DIRECT_POI);
+
         // 构建文档
         creator.setTitle("我的文档")
-               .setAuthor("作者姓名")
-               .addHeading("第一章", 1)
-               .addParagraph("这是第一章的内容...")
-               .addHeading("第二章", 1)
-               .addParagraph("这是第二章的内容...")
-               .setHeader("文档页头")
-               .setFooter("文档页脚");
-        
+                .setAuthor("作者姓名")
+                .addHeading("第一章", 1)
+                .addParagraph("这是第一章的内容...")
+                .addHeading("第二章", 1)
+                .addParagraph("这是第二章的内容...")
+                .setHeader("文档页头")
+                .setFooter("文档页脚");
+
         // 创建文档
         creator.createDocument(Paths.get("my_document.docx"));
-        
+
         // 或获取字节数组
         byte[] documentBytes = creator.createDocumentAsBytes();
     }
@@ -204,29 +239,29 @@ import com.boundesu.words.core.advanced.AdvancedDocumentGenerator;
 public class AdvancedExample {
     public static void main(String[] args) throws IOException {
         AdvancedDocumentGenerator generator = new AdvancedDocumentGenerator();
-        
+
         // 配置文档
-        AdvancedDocumentGenerator.DocumentConfig config = 
-            new AdvancedDocumentGenerator.DocumentConfig();
+        AdvancedDocumentGenerator.DocumentConfig config =
+                new AdvancedDocumentGenerator.DocumentConfig();
         config.setGenerateToc(true);
         config.setGenerateCoverPage(true);
         config.setCompany("我的公司");
         config.setDepartment("技术部");
         generator.setConfig(config);
-        
+
         // 生成报告文档
         Map<String, String> chapters = new HashMap<>();
         chapters.put("执行摘要", "本季度业绩总结...");
         chapters.put("详细分析", "详细的数据分析...");
         chapters.put("未来规划", "下季度工作计划...");
-        
+
         generator.generateReportDocument(
-            "季度业务报告",
-            "业务分析团队",
-            "本报告分析了本季度的业务表现",
-            chapters
+                "季度业务报告",
+                "业务分析团队",
+                "本报告分析了本季度的业务表现",
+                chapters
         );
-        
+
         generator.createDocument(Paths.get("quarterly_report.docx"));
     }
 }
@@ -240,11 +275,11 @@ import com.boundesu.words.common.util.PerformanceMonitor;
 public class PerformanceExample {
     public static void main(String[] args) {
         BoundesuWords sdk = new BoundesuWords();
-        
+
         // 监控转换性能
-        PerformanceMonitor.OperationContext context = 
-            PerformanceMonitor.startOperation("HTML to DOCX Conversion");
-        
+        PerformanceMonitor.OperationContext context =
+                PerformanceMonitor.startOperation("HTML to DOCX Conversion");
+
         try {
             XWPFDocument document = sdk.htmlToDocx(htmlContent);
             sdk.saveToFile(document, "output.docx");
@@ -267,24 +302,40 @@ public class PerformanceExample {
 
 ### 文档创建器类型
 
-| 类型 | 描述 | 适用场景 |
-|------|------|----------|
-| DIRECT_POI | 直接使用POI API | 需要精确控制文档结构 |
-| HTML_CONVERSION | 通过HTML转换 | 有现成的HTML内容 |
-| XML_CONVERSION | 通过XML转换 | 需要结构化文档生成 |
+| 类型              | 描述          | 适用场景       |
+|-----------------|-------------|------------|
+| DIRECT_POI      | 直接使用POI API | 需要精确控制文档结构 |
+| HTML_CONVERSION | 通过HTML转换    | 有现成的HTML内容 |
+| XML_CONVERSION  | 通过XML转换     | 需要结构化文档生成  |
 
 ### 高级生成器配置
 
 ```java
 DocumentConfig config = new DocumentConfig();
-config.setGenerateToc(true);           // 是否生成目录
-config.setGenerateCoverPage(true);     // 是否生成封面
-config.setGenerateFooter(true);        // 是否生成页脚
-config.setGenerateHeader(true);        // 是否生成页头
-config.setTocTitle("目录");            // 目录标题
-config.setDateFormat("yyyy年MM月dd日"); // 日期格式
-config.setCompany("公司名称");         // 公司名称
-config.setDepartment("部门名称");      // 部门名称
+config.
+
+setGenerateToc(true);           // 是否生成目录
+config.
+
+setGenerateCoverPage(true);     // 是否生成封面
+config.
+
+setGenerateFooter(true);        // 是否生成页脚
+config.
+
+setGenerateHeader(true);        // 是否生成页头
+config.
+
+setTocTitle("目录");            // 目录标题
+config.
+
+setDateFormat("yyyy年MM月dd日"); // 日期格式
+config.
+
+setCompany("公司名称");         // 公司名称
+config.
+
+setDepartment("部门名称");      // 部门名称
 ```
 
 ## 📦 依赖关系
@@ -298,6 +349,7 @@ config.setDepartment("部门名称");      // 部门名称
 ### Maven 依赖
 
 ```xml
+
 <dependency>
     <groupId>com.boundesu</groupId>
     <artifactId>boundesu-words-core</artifactId>
@@ -350,11 +402,15 @@ mvn test -pl boundesu-words-core -Dtest=BoundesuWordsTest
 
 ```java
 // 启用详细日志
-System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug");
+System.setProperty("org.slf4j.simpleLogger.defaultLogLevel","debug");
 
 // 获取SDK信息
 Map<String, String> info = BoundesuWords.getSDKInfo();
-info.forEach((key, value) -> System.out.println(key + ": " + value));
+info.
+
+forEach((key, value) ->System.out.
+
+println(key +": "+value));
 ```
 
 ## 📄 许可证

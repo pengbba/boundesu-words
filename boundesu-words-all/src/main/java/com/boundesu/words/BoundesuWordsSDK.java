@@ -1,19 +1,19 @@
 package com.boundesu.words;
 
 import com.boundesu.words.common.creator.DocumentCreator;
-import com.boundesu.words.core.creator.DocumentCreatorFactory;
-import com.boundesu.words.core.advanced.AdvancedDocumentGenerator;
-import com.boundesu.words.html.parser.HtmlContentParser;
-import com.boundesu.words.xml.parser.XmlContentParser;
+import com.boundesu.words.common.exception.BoundesuWordsException;
 import com.boundesu.words.common.util.DocumentValidator;
 import com.boundesu.words.common.util.PerformanceMonitor;
+import com.boundesu.words.core.advanced.AdvancedDocumentGenerator;
+import com.boundesu.words.core.creator.DocumentCreatorFactory;
 import com.boundesu.words.html.converter.HtmlToDocxConverter;
-import com.boundesu.words.common.exception.BoundesuWordsException;
+import com.boundesu.words.html.parser.HtmlContentParser;
+import com.boundesu.words.xml.parser.XmlContentParser;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileOutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Boundesu Words SDK 主入口类
  * 提供统一的API接口来使用所有模块功能
- * 
+ *
  * @author Boundesu Team
  * @version 1.0.0
  */
@@ -84,10 +84,10 @@ public class BoundesuWordsSDK {
     public static void createSimpleDocument(String title, String author, String content, Path filePath) throws IOException {
         DocumentCreator creator = createDocumentCreator("poi");
         creator.setTitle(title)
-               .setAuthor(author)
-               .addHeading(title, 1)
-               .addParagraph(content)
-               .createDocument(filePath);
+                .setAuthor(author)
+                .addHeading(title, 1)
+                .addParagraph(content)
+                .createDocument(filePath);
     }
 
     /**
@@ -100,8 +100,8 @@ public class BoundesuWordsSDK {
      * @param filePath 输出文件路径
      * @throws IOException 文件操作异常
      */
-    public static void createReportDocument(String title, String author, String summary, 
-                                           Map<String, String> chapters, Path filePath) throws IOException {
+    public static void createReportDocument(String title, String author, String summary,
+                                            Map<String, String> chapters, Path filePath) throws IOException {
         AdvancedDocumentGenerator generator = createAdvancedGenerator();
         generator.generateReport(title, author, summary, chapters);
         generator.createDocument(filePath);
@@ -116,14 +116,14 @@ public class BoundesuWordsSDK {
      */
     public static void createDocumentFromHtml(String htmlContent, Path filePath) throws IOException {
         DocumentCreator creator = createDocumentCreator("html");
-        
+
         // 解析HTML并生成文档结构
         List<HtmlContentParser.DocumentStructure> structures = HtmlContentParser.parseHtmlContent(htmlContent);
-        
+
         if (!structures.isEmpty() && structures.get(0).getTitle() != null && !structures.get(0).getTitle().isEmpty()) {
             creator.setTitle(structures.get(0).getTitle());
         }
-        
+
         for (HtmlContentParser.DocumentStructure structure : structures) {
             addStructureToCreator(creator, structure);
         }
@@ -154,7 +154,7 @@ public class BoundesuWordsSDK {
     public static void convertHtmlToDocx(InputStream htmlInputStream, Path outputPath, HtmlToDocxConverter.PageMargins margins) throws IOException, BoundesuWordsException {
         HtmlToDocxConverter converter = new HtmlToDocxConverter();
         XWPFDocument document = converter.convertHtmlToDocx(htmlInputStream, margins);
-        
+
         try (FileOutputStream fos = new FileOutputStream(outputPath.toFile())) {
             document.write(fos);
         } finally {
@@ -174,7 +174,7 @@ public class BoundesuWordsSDK {
     public static void convertHtmlToDocx(String htmlContent, Path outputPath, HtmlToDocxConverter.PageMargins margins) throws IOException, BoundesuWordsException {
         HtmlToDocxConverter converter = new HtmlToDocxConverter();
         XWPFDocument document = converter.convertHtmlToDocx(htmlContent, margins);
-        
+
         try (FileOutputStream fos = new FileOutputStream(outputPath.toFile())) {
             document.write(fos);
         } finally {
@@ -191,16 +191,16 @@ public class BoundesuWordsSDK {
      */
     public static void createDocumentFromXml(String xmlContent, Path filePath) throws IOException {
         DocumentCreator creator = createDocumentCreator("xml");
-        
+
         // 解析XML并生成文档结构
         List<XmlContentParser.XmlDocumentStructure> structures = XmlContentParser.parseXmlContent(xmlContent);
-        
+
         if (!structures.isEmpty()) {
             XmlContentParser.XmlDocumentStructure firstStructure = structures.get(0);
             if (firstStructure.getTagName() != null && !firstStructure.getTagName().isEmpty()) {
                 creator.setTitle(firstStructure.getTagName());
             }
-            
+
             for (XmlContentParser.XmlDocumentStructure structure : structures) {
                 addXmlStructureToCreator(creator, structure);
             }
@@ -302,7 +302,7 @@ public class BoundesuWordsSDK {
             creator.addHeading(structure.getTitle(), structure.getLevel());
             creator.addParagraph(structure.getContent());
         }
-        
+
         if (structure.getChildren() != null) {
             for (HtmlContentParser.DocumentStructure child : structure.getChildren()) {
                 addStructureToCreator(creator, child);
@@ -321,7 +321,7 @@ public class BoundesuWordsSDK {
             creator.addHeading(structure.getTagName(), structure.getLevel());
             creator.addParagraph(structure.getContent());
         }
-        
+
         if (structure.getChildren() != null) {
             for (XmlContentParser.XmlDocumentStructure child : structure.getChildren()) {
                 addXmlStructureToCreator(creator, child);
@@ -333,7 +333,7 @@ public class BoundesuWordsSDK {
      * 工具类，提供便捷的文档创建方法
      */
     public static class Utils {
-        
+
         /**
          * 创建技术文档
          *
@@ -346,7 +346,7 @@ public class BoundesuWordsSDK {
          * @throws IOException 文件操作异常
          */
         public static void createTechnicalDocument(String title, String author, String introduction,
-                                                  Map<String, String> sections, String conclusion, Path filePath) throws IOException {
+                                                   Map<String, String> sections, String conclusion, Path filePath) throws IOException {
             AdvancedDocumentGenerator generator = createAdvancedGenerator();
             generator.generateTechnicalDocument(title, author, introduction, sections, conclusion);
             generator.createDocument(filePath);
@@ -365,7 +365,7 @@ public class BoundesuWordsSDK {
          * @throws IOException 文件操作异常
          */
         public static void createMeetingMinutes(String meetingTitle, String date, List<String> attendees,
-                                               List<String> agenda, List<String> decisions, List<String> actionItems, Path filePath) throws IOException {
+                                                List<String> agenda, List<String> decisions, List<String> actionItems, Path filePath) throws IOException {
             AdvancedDocumentGenerator generator = createAdvancedGenerator();
             generator.generateMeetingMinutes(meetingTitle, date, attendees, agenda, decisions, actionItems);
             generator.createDocument(filePath);
@@ -401,15 +401,37 @@ public class BoundesuWordsSDK {
         }
 
         // Getters
-        public String getTitle() { return title; }
-        public String getAuthor() { return author; }
-        public String getContent() { return content; }
-        public Path getFilePath() { return filePath; }
+        public String getTitle() {
+            return title;
+        }
 
         // Setters
-        public void setTitle(String title) { this.title = title; }
-        public void setAuthor(String author) { this.author = author; }
-        public void setContent(String content) { this.content = content; }
-        public void setFilePath(Path filePath) { this.filePath = filePath; }
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public void setAuthor(String author) {
+            this.author = author;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public Path getFilePath() {
+            return filePath;
+        }
+
+        public void setFilePath(Path filePath) {
+            this.filePath = filePath;
+        }
     }
 }
