@@ -1,6 +1,6 @@
 package com.boundesu.words.core.creator;
 
-import com.boundesu.words.core.creator.impl.HtmlToDocxCreator;
+import com.boundesu.words.common.creator.DocumentCreator;
 import com.boundesu.words.core.creator.impl.PoiDirectDocxCreator;
 import com.boundesu.words.core.creator.impl.XmlBasedDocxCreator;
 
@@ -43,12 +43,11 @@ public class DocumentCreatorFactory {
         switch (type) {
             case DIRECT_POI:
                 return new PoiDirectDocxCreator();
-            case HTML_CONVERSION:
-                return new HtmlToDocxCreator();
             case XML_CONVERSION:
                 return new XmlBasedDocxCreator();
+            case HTML_CONVERSION:
             default:
-                throw new IllegalArgumentException("不支持的创建器类型: " + type);
+                throw new IllegalArgumentException("不支持的创建器类型: " + type + "。HTML转换器请使用html模块。");
         }
     }
 
@@ -63,11 +62,14 @@ public class DocumentCreatorFactory {
 
     /**
      * 创建HTML转换文档创建器
+     * 注意：HTML转换器已移至html模块，请使用html模块中的HtmlToDocxCreator
      *
-     * @return HTML转换创建器
+     * @deprecated 请使用html模块中的HtmlToDocxCreator
+     * @throws UnsupportedOperationException HTML转换器不在core模块中
      */
-    public static HtmlToDocxCreator createHtmlCreator() {
-        return new HtmlToDocxCreator();
+    @Deprecated
+    public static DocumentCreator createHtmlCreator() {
+        throw new UnsupportedOperationException("HTML转换器已移至html模块，请使用html模块中的HtmlToDocxCreator");
     }
 
     /**

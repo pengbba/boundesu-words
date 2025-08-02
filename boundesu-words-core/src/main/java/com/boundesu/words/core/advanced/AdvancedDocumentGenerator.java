@@ -1,6 +1,6 @@
 package com.boundesu.words.core.advanced;
 
-import com.boundesu.words.core.creator.DocumentCreator;
+import com.boundesu.words.common.creator.DocumentCreator;
 import com.boundesu.words.core.creator.DocumentCreatorFactory;
 
 import java.io.IOException;

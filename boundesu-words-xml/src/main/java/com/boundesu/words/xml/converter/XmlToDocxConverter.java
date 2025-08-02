@@ -1,5 +1,7 @@
 package com.boundesu.words.xml.converter;
 
+import com.boundesu.words.common.constants.FormatConstants;
+import com.boundesu.words.common.constants.ErrorConstants;
 import com.boundesu.words.common.exception.BoundesuWordsException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -40,7 +42,7 @@ public class XmlToDocxConverter {
             // 解析XML内容
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document xmlDoc = builder.parse(new ByteArrayInputStream(xmlContent.getBytes("UTF-8")));
+            Document xmlDoc = builder.parse(new ByteArrayInputStream(xmlContent.getBytes(FormatConstants.ENCODING_UTF8)));
             
             // 创建DOCX文档
             XWPFDocument docxDoc = new XWPFDocument();
@@ -53,7 +55,7 @@ public class XmlToDocxConverter {
             
         } catch (Exception e) {
             log.error("XML到DOCX转换失败", e);
-            throw new BoundesuWordsException("XML_CONVERT_ERROR", "XML到DOCX转换失败", e);
+            throw new BoundesuWordsException(ErrorConstants.DOCUMENT_CONVERSION_ERROR, "XML到DOCX转换失败", e);
         }
     }
     
@@ -84,7 +86,7 @@ public class XmlToDocxConverter {
             
         } catch (Exception e) {
             log.error("XML输入流到DOCX转换失败", e);
-            throw new BoundesuWordsException("XML_STREAM_CONVERT_ERROR", "XML输入流到DOCX转换失败", e);
+            throw new BoundesuWordsException(ErrorConstants.DOCUMENT_CONVERSION_ERROR, "XML输入流到DOCX转换失败", e);
         }
     }
     

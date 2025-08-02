@@ -1,7 +1,7 @@
 package com.boundesu.words.examples;
 
 import com.boundesu.words.BoundesuWordsSDK;
-import com.boundesu.words.core.creator.DocumentCreator;
+import com.boundesu.words.common.creator.DocumentCreator;
 import com.boundesu.words.core.creator.DocumentCreatorFactory;
 import com.boundesu.words.core.advanced.AdvancedDocumentGenerator;
 import com.boundesu.words.common.util.PerformanceMonitor;
@@ -720,82 +720,90 @@ public class SDKExampleApp {
     private static void example12_PageMarginsDemo() throws IOException, BoundesuWordsException {
         System.out.println("\n=== 示例12: 页边距设置功能演示 ===");
         
-        String htmlContent = 
+        String baseHtmlContent = 
             "<html>" +
             "<head><title>页边距设置演示</title></head>" +
             "<body>" +
             "<h1>页边距设置功能演示</h1>" +
-            "<p>这个文档演示了如何设置不同的页边距。本文档使用了自定义的页边距设置。</p>" +
-            "<h2>页边距说明</h2>" +
+            "<p>这个文档演示了Boundesu Words SDK的页边距设置功能。</p>" +
+            "<h2>功能特点</h2>" +
             "<ul>" +
-            "<li><strong>上边距：</strong> 0.5英寸 (36磅)</li>" +
-            "<li><strong>下边距：</strong> 0.5英寸 (36磅)</li>" +
-            "<li><strong>左边距：</strong> 1.5英寸 (108磅)</li>" +
-            "<li><strong>右边距：</strong> 1.5英寸 (108磅)</li>" +
+            "<li>支持多种预设页边距：默认、窄边距、宽边距</li>" +
+            "<li>支持自定义页边距设置</li>" +
+            "<li>支持装订边距（左边距增加）</li>" +
+            "<li>支持多种单位：磅、英寸、厘米</li>" +
+            "<li>内置页边距验证功能</li>" +
             "</ul>" +
-            "<h2>应用场景</h2>" +
-            "<p>页边距设置功能在以下场景中非常有用：</p>" +
-            "<ol>" +
-            "<li>制作需要装订的文档时，可以增加左边距</li>" +
-            "<li>打印成本控制，通过调整边距来优化页面利用率</li>" +
-            "<li>符合特定的文档格式要求</li>" +
-            "<li>提升文档的视觉效果和可读性</li>" +
-            "</ol>" +
             "<h2>技术实现</h2>" +
             "<p>页边距设置通过Apache POI的CTPageMar类实现，支持以下单位：</p>" +
             "<ul>" +
             "<li>磅 (Points) - 1磅 = 1/72英寸</li>" +
             "<li>缇 (Twips) - 1缇 = 1/20磅 = 1/1440英寸</li>" +
             "</ul>" +
-            "<p>本SDK内部使用缇作为单位，并提供了便捷的磅到缇的转换。</p>" +
-            "<h2>使用示例</h2>" +
-            "<p>以下是设置页边距的代码示例：</p>" +
-            "<pre>" +
-            "// 创建页边距对象（单位：磅）\n" +
-            "PageMargins margins = new PageMargins(36, 36, 108, 108);\n" +
-            "\n" +
-            "// 转换HTML并应用页边距\n" +
-            "BoundesuWordsSDK.convertHtmlToDocx(htmlContent, outputPath, margins);" +
-            "</pre>" +
-            "<p>这样就可以创建一个具有自定义页边距的Word文档了。</p>" +
+            "<p>本SDK内部使用缇作为单位，并提供了便捷的单位转换功能。</p>" +
             "</body>" +
             "</html>";
         
-        // 创建自定义页边距：上下0.5英寸，左右1.5英寸
-        HtmlToDocxConverter.PageMargins customMargins = new HtmlToDocxConverter.PageMargins(36, 36, 108, 108);
+        // 1. 默认页边距文档
+        System.out.println("创建默认页边距文档...");
+        HtmlToDocxConverter.PageMargins defaultMargins = HtmlToDocxConverter.PageMargins.defaultMargins();
+        Path defaultFile = Paths.get(OUTPUT_DIR, "example12_default_margins.docx");
+        BoundesuWordsSDK.convertHtmlToDocx(baseHtmlContent.replace("页边距设置演示", "默认页边距演示 - " + defaultMargins.getMarginInfo()), defaultFile, defaultMargins);
+        System.out.println("默认页边距文档已创建: " + defaultFile.getFileName());
         
-        Path marginsFile = Paths.get(OUTPUT_DIR, "example12_custom_margins.docx");
+        // 2. 窄页边距文档
+        System.out.println("创建窄页边距文档...");
+        HtmlToDocxConverter.PageMargins narrowMargins = HtmlToDocxConverter.PageMargins.narrowMargins();
+        Path narrowFile = Paths.get(OUTPUT_DIR, "example12_narrow_margins.docx");
+        BoundesuWordsSDK.convertHtmlToDocx(baseHtmlContent.replace("页边距设置演示", "窄页边距演示 - " + narrowMargins.getMarginInfo()), narrowFile, narrowMargins);
+        System.out.println("窄页边距文档已创建: " + narrowFile.getFileName());
         
-        // 使用自定义页边距转换HTML
-        BoundesuWordsSDK.convertHtmlToDocx(htmlContent, marginsFile, customMargins);
+        // 3. 宽页边距文档
+        System.out.println("创建宽页边距文档...");
+        HtmlToDocxConverter.PageMargins wideMargins = HtmlToDocxConverter.PageMargins.wideMargins();
+        Path wideFile = Paths.get(OUTPUT_DIR, "example12_wide_margins.docx");
+        BoundesuWordsSDK.convertHtmlToDocx(baseHtmlContent.replace("页边距设置演示", "宽页边距演示 - " + wideMargins.getMarginInfo()), wideFile, wideMargins);
+        System.out.println("宽页边距文档已创建: " + wideFile.getFileName());
         
-        System.out.println("自定义页边距文档已创建: " + marginsFile.getFileName());
+        // 4. 装订页边距文档
+        System.out.println("创建装订页边距文档...");
+        HtmlToDocxConverter.PageMargins bindingMargins = HtmlToDocxConverter.PageMargins.bindingMargins(36); // 增加0.5英寸装订边距
+        Path bindingFile = Paths.get(OUTPUT_DIR, "example12_binding_margins.docx");
+        BoundesuWordsSDK.convertHtmlToDocx(baseHtmlContent.replace("页边距设置演示", "装订页边距演示 - " + bindingMargins.getMarginInfo()), bindingFile, bindingMargins);
+        System.out.println("装订页边距文档已创建: " + bindingFile.getFileName());
         
-        // 创建另一个使用默认页边距的文档进行对比
-        String defaultHtmlContent = 
-            "<html>" +
-            "<head><title>默认页边距对比</title></head>" +
-            "<body>" +
-            "<h1>默认页边距文档</h1>" +
-            "<p>这个文档使用默认的页边距设置（上下左右各1英寸）。</p>" +
-            "<p>通过对比两个文档，您可以清楚地看到页边距设置的效果。</p>" +
-            "<h2>默认页边距规格</h2>" +
-            "<ul>" +
-            "<li>上边距：1英寸 (72磅)</li>" +
-            "<li>下边距：1英寸 (72磅)</li>" +
-            "<li>左边距：1英寸 (72磅)</li>" +
-            "<li>右边距：1英寸 (72磅)</li>" +
-            "</ul>" +
-            "<p>默认页边距是最常用的设置，适合大多数文档类型。</p>" +
-            "</body>" +
-            "</html>";
+        // 5. 从英寸创建页边距
+        System.out.println("创建英寸单位页边距文档...");
+        HtmlToDocxConverter.PageMargins inchMargins = HtmlToDocxConverter.PageMargins.fromInches(0.75, 0.75, 1.25, 1.25);
+        Path inchFile = Paths.get(OUTPUT_DIR, "example12_inch_margins.docx");
+        BoundesuWordsSDK.convertHtmlToDocx(baseHtmlContent.replace("页边距设置演示", "英寸单位页边距演示 - " + inchMargins.getMarginInfo()), inchFile, inchMargins);
+        System.out.println("英寸单位页边距文档已创建: " + inchFile.getFileName());
         
-        Path defaultMarginsFile = Paths.get(OUTPUT_DIR, "example12_default_margins.docx");
+        // 6. 从厘米创建页边距
+        System.out.println("创建厘米单位页边距文档...");
+        HtmlToDocxConverter.PageMargins cmMargins = HtmlToDocxConverter.PageMargins.fromCentimeters(2.0, 2.0, 3.0, 3.0);
+        Path cmFile = Paths.get(OUTPUT_DIR, "example12_cm_margins.docx");
+        BoundesuWordsSDK.convertHtmlToDocx(baseHtmlContent.replace("页边距设置演示", "厘米单位页边距演示 - " + cmMargins.getMarginInfo()), cmFile, cmMargins);
+        System.out.println("厘米单位页边距文档已创建: " + cmFile.getFileName());
         
-        // 使用默认页边距（不传递margins参数）
-        BoundesuWordsSDK.convertHtmlToDocx(defaultHtmlContent, defaultMarginsFile, null);
+        // 7. 演示页边距验证功能
+        System.out.println("演示页边距验证功能...");
+        try {
+            // 尝试创建无效的页边距（超出最大值）
+            new HtmlToDocxConverter.PageMargins(200, 200, 200, 200);
+        } catch (IllegalArgumentException e) {
+            System.out.println("页边距验证成功捕获错误: " + e.getMessage());
+        }
         
-        System.out.println("默认页边距文档已创建: " + defaultMarginsFile.getFileName());
-        System.out.println("提示：请打开两个文档进行对比，观察页边距的差异效果。");
+        try {
+            // 尝试创建无效的页边距（小于最小值）
+            new HtmlToDocxConverter.PageMargins(10, 10, 10, 10);
+        } catch (IllegalArgumentException e) {
+            System.out.println("页边距验证成功捕获错误: " + e.getMessage());
+        }
+        
+        System.out.println("\n页边距功能演示完成！");
+        System.out.println("提示：请打开生成的文档进行对比，观察不同页边距设置的效果。");
+        System.out.println("文档包括：默认、窄边距、宽边距、装订边距、英寸单位、厘米单位等多种设置。");
     }
 }

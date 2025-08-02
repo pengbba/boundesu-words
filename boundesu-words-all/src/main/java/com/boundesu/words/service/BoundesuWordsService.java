@@ -1,4 +1,4 @@
-package com.boundesu.words.core.service;
+package com.boundesu.words.service;
 
 import com.boundesu.words.common.constants.BoundesuConstants;
 import com.boundesu.words.common.exception.BoundesuWordsException;

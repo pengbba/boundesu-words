@@ -2,17 +2,19 @@ package com.boundesu.words.core.creator.impl;
 
 import com.boundesu.words.common.constants.DocxConstants;
 import com.boundesu.words.common.util.DocumentValidator;
-import com.boundesu.words.core.creator.DocumentCreator;
+import com.boundesu.words.common.creator.DocumentCreator;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.util.Units;
 
 /**
  * 直接使用Apache POI创建DOCX文档的实现类
@@ -29,6 +31,12 @@ public class PoiDirectDocxCreator implements DocumentCreator {
     private String headerText;
     private String footerText;
     private boolean pageNumberEnabled;
+    private String headerImagePath;
+    private String footerImagePath;
+    private int headerImageWidth = -1;
+    private int headerImageHeight = -1;
+    private int footerImageWidth = -1;
+    private int footerImageHeight = -1;
 
     /**
      * 构造函数，初始化POI文档
@@ -40,6 +48,8 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         this.headerText = "";
         this.footerText = "";
         this.pageNumberEnabled = false;
+        this.headerImagePath = null;
+        this.footerImagePath = null;
         
         // 初始化文档属性
         try {
@@ -152,7 +162,7 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         }
         
         XWPFParagraph heading = document.createParagraph();
-        heading.setStyle("Heading" + level);
+        heading.setStyle("Heading " + level);
         
         XWPFRun run = heading.createRun();
         run.setText(text.trim());
@@ -336,13 +346,49 @@ public class PoiDirectDocxCreator implements DocumentCreator {
         return this;
     }
 
+    @Override
+    public DocumentCreator setHeaderWithImage(String headerText, String imagePath) {
+        this.headerText = headerText != null ? headerText.trim() : "";
+        this.headerImagePath = imagePath;
+        this.headerImageWidth = -1;
+        this.headerImageHeight = -1;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setHeaderWithImage(String headerText, String imagePath, int width, int height) {
+        this.headerText = headerText != null ? headerText.trim() : "";
+        this.headerImagePath = imagePath;
+        this.headerImageWidth = width;
+        this.headerImageHeight = height;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setFooterWithImage(String footerText, String imagePath) {
+        this.footerText = footerText != null ? footerText.trim() : "";
+        this.footerImagePath = imagePath;
+        this.footerImageWidth = -1;
+        this.footerImageHeight = -1;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setFooterWithImage(String footerText, String imagePath, int width, int height) {
+        this.footerText = footerText != null ? footerText.trim() : "";
+        this.footerImagePath = imagePath;
+        this.footerImageWidth = width;
+        this.footerImageHeight = height;
+        return this;
+    }
+
     /**
      * 应用页头页脚设置
      */
     private void applyHeaderFooter() {
         try {
             // 创建页头
-            if (!headerText.isEmpty()) {
+            if (!headerText.isEmpty() || headerImagePath != null) {
                 XWPFHeaderFooterPolicy headerFooterPolicy = document.getHeaderFooterPolicy();
                 if (headerFooterPolicy == null) {
                     headerFooterPolicy = document.createHeaderFooterPolicy();
@@ -351,14 +397,23 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                 XWPFHeader header = headerFooterPolicy.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
                 XWPFParagraph headerParagraph = header.createParagraph();
                 headerParagraph.setAlignment(ParagraphAlignment.CENTER);
-                XWPFRun headerRun = headerParagraph.createRun();
-                headerRun.setText(headerText);
-                headerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
-                headerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
+                
+                // 添加页头图片
+                if (headerImagePath != null) {
+                    addImageToHeaderFooter(headerParagraph, headerImagePath, headerImageWidth, headerImageHeight);
+                }
+                
+                // 添加页头文本
+                if (!headerText.isEmpty()) {
+                    XWPFRun headerRun = headerParagraph.createRun();
+                    headerRun.setText(headerText);
+                    headerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
+                    headerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
+                }
             }
             
             // 创建页脚
-            if (!footerText.isEmpty() || pageNumberEnabled) {
+            if (!footerText.isEmpty() || pageNumberEnabled || footerImagePath != null) {
                 XWPFHeaderFooterPolicy headerFooterPolicy = document.getHeaderFooterPolicy();
                 if (headerFooterPolicy == null) {
                     headerFooterPolicy = document.createHeaderFooterPolicy();
@@ -367,38 +422,79 @@ public class PoiDirectDocxCreator implements DocumentCreator {
                 XWPFFooter footer = headerFooterPolicy.createFooter(XWPFHeaderFooterPolicy.DEFAULT);
                 XWPFParagraph footerParagraph = footer.createParagraph();
                 footerParagraph.setAlignment(ParagraphAlignment.CENTER);
-                XWPFRun footerRun = footerParagraph.createRun();
                 
-                String footerContent = "";
-                if (!footerText.isEmpty()) {
-                    footerContent = footerText;
+                // 添加页脚图片
+                if (footerImagePath != null) {
+                    addImageToHeaderFooter(footerParagraph, footerImagePath, footerImageWidth, footerImageHeight);
                 }
                 
-                if (pageNumberEnabled) {
-                    if (!footerContent.isEmpty()) {
-                        footerContent += " - ";
+                // 添加页脚文本和页码
+                if (!footerText.isEmpty() || pageNumberEnabled) {
+                    XWPFRun footerRun = footerParagraph.createRun();
+                    
+                    String footerContent = "";
+                    if (!footerText.isEmpty()) {
+                        footerContent = footerText;
                     }
-                    footerContent += "第 ";
-                    footerRun.setText(footerContent);
-                    footerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
-                    footerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
                     
-                    // 添加页码字段
-                    footerParagraph.getCTP().addNewFldSimple().setInstr("PAGE");
-                    
-                    XWPFRun pageRun = footerParagraph.createRun();
-                    pageRun.setText(" 页");
-                    pageRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
-                    pageRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
-                } else {
-                    footerRun.setText(footerContent);
-                    footerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
-                    footerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
+                    if (pageNumberEnabled) {
+                        if (!footerContent.isEmpty()) {
+                            footerContent += " - ";
+                        }
+                        footerContent += "第 ";
+                        footerRun.setText(footerContent);
+                        footerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
+                        footerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
+                        
+                        // 添加页码字段
+                        footerParagraph.getCTP().addNewFldSimple().setInstr("PAGE");
+                        
+                        XWPFRun pageRun = footerParagraph.createRun();
+                        pageRun.setText(" 页");
+                        pageRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
+                        pageRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
+                    } else {
+                        footerRun.setText(footerContent);
+                        footerRun.setFontFamily(DocxConstants.DEFAULT_FONT_FAMILY);
+                        footerRun.setFontSize(DocxConstants.DEFAULT_FONT_SIZE - 2);
+                    }
                 }
             }
         } catch (Exception e) {
             // 页头页脚设置失败时不影响文档创建
             System.err.println("设置页头页脚失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 向页头或页脚段落添加图片
+     */
+    private void addImageToHeaderFooter(XWPFParagraph paragraph, String imagePath, int width, int height) {
+        try (FileInputStream imageStream = new FileInputStream(imagePath)) {
+            XWPFRun imageRun = paragraph.createRun();
+            
+            // 确定图片格式
+            int format = XWPFDocument.PICTURE_TYPE_PNG;
+            String fileName = imagePath.toLowerCase();
+            if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+                format = XWPFDocument.PICTURE_TYPE_JPEG;
+            } else if (fileName.endsWith(".gif")) {
+                format = XWPFDocument.PICTURE_TYPE_GIF;
+            } else if (fileName.endsWith(".bmp")) {
+                format = XWPFDocument.PICTURE_TYPE_BMP;
+            }
+            
+            // 如果指定了尺寸，使用指定尺寸；否则使用默认尺寸
+            if (width > 0 && height > 0) {
+                imageRun.addPicture(imageStream, format, imagePath, 
+                    Units.toEMU(width), Units.toEMU(height));
+            } else {
+                // 使用默认尺寸 (100x50 像素)
+                imageRun.addPicture(imageStream, format, imagePath, 
+                    Units.toEMU(100), Units.toEMU(50));
+            }
+        } catch (Exception e) {
+            System.err.println("添加图片到页头/页脚失败: " + e.getMessage());
         }
     }
 }

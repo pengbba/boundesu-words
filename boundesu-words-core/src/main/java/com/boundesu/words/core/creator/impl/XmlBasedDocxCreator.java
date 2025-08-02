@@ -1,6 +1,6 @@
 package com.boundesu.words.core.creator.impl;
 
-import com.boundesu.words.core.creator.DocumentCreator;
+import com.boundesu.words.common.creator.DocumentCreator;
 import com.boundesu.words.xml.creator.XmlToDocxCreator;
 
 import java.io.IOException;
@@ -23,6 +23,12 @@ public class XmlBasedDocxCreator implements DocumentCreator {
     private String headerText;
     private String footerText;
     private boolean pageNumberEnabled;
+    private String headerImagePath;
+    private String footerImagePath;
+    private int headerImageWidth = -1;
+    private int headerImageHeight = -1;
+    private int footerImageWidth = -1;
+    private int footerImageHeight = -1;
 
     /**
      * 构造函数
@@ -34,6 +40,8 @@ public class XmlBasedDocxCreator implements DocumentCreator {
         this.headerText = "";
         this.footerText = "";
         this.pageNumberEnabled = false;
+        this.headerImagePath = null;
+        this.footerImagePath = null;
     }
 
     @Override
@@ -422,6 +430,42 @@ public class XmlBasedDocxCreator implements DocumentCreator {
     @Override
     public DocumentCreator setPageNumberEnabled(boolean enabled) {
         this.pageNumberEnabled = enabled;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setHeaderWithImage(String headerText, String imagePath) {
+        this.headerText = headerText != null ? headerText.trim() : "";
+        this.headerImagePath = imagePath;
+        this.headerImageWidth = -1;
+        this.headerImageHeight = -1;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setHeaderWithImage(String headerText, String imagePath, int width, int height) {
+        this.headerText = headerText != null ? headerText.trim() : "";
+        this.headerImagePath = imagePath;
+        this.headerImageWidth = width;
+        this.headerImageHeight = height;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setFooterWithImage(String footerText, String imagePath) {
+        this.footerText = footerText != null ? footerText.trim() : "";
+        this.footerImagePath = imagePath;
+        this.footerImageWidth = -1;
+        this.footerImageHeight = -1;
+        return this;
+    }
+
+    @Override
+    public DocumentCreator setFooterWithImage(String footerText, String imagePath, int width, int height) {
+        this.footerText = footerText != null ? footerText.trim() : "";
+        this.footerImagePath = imagePath;
+        this.footerImageWidth = width;
+        this.footerImageHeight = height;
         return this;
     }
 

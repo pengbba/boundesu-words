@@ -23,12 +23,7 @@
             <version>${project.version}</version>
         </dependency>
         
-        <!-- HTML module -->
-        <dependency>
-            <groupId>com.boundesu</groupId>
-            <artifactId>boundesu-words-html</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         
         <!-- XML module -->
         <dependency>

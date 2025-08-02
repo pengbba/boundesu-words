@@ -1,12 +1,14 @@
 package com.boundesu.words.core;
 
+import com.boundesu.words.common.constants.BoundesuConstants;
 import com.boundesu.words.common.exception.BoundesuWordsException;
-import com.boundesu.words.core.service.BoundesuWordsService;
+import com.boundesu.words.common.util.StringUtils;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.*;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -19,14 +21,11 @@ public class BoundesuWords {
     
     private static final Logger log = LoggerFactory.getLogger(BoundesuWords.class);
     
-    private final BoundesuWordsService service;
-    
     /**
      * 构造函数
      */
     public BoundesuWords() {
-        this.service = new BoundesuWordsService();
-        log.info("Boundesu Words SDK 初始化完成");
+        log.info("Boundesu Words Core 初始化完成");
     }
     
     /**
@@ -35,7 +34,12 @@ public class BoundesuWords {
      * @return SDK信息
      */
     public static Map<String, String> getSDKInfo() {
-        return BoundesuWordsService.getSDKInfo();
+        Map<String, String> info = new LinkedHashMap<>();
+        info.put("name", BoundesuConstants.SDK_NAME + " Core");
+        info.put("version", BoundesuConstants.SDK_VERSION);
+        info.put("description", BoundesuConstants.SDK_DESCRIPTION);
+        info.put("author", BoundesuConstants.SDK_AUTHOR);
+        return info;
     }
     
     /**
@@ -44,73 +48,7 @@ public class BoundesuWords {
      * @return 版本号
      */
     public static String getVersion() {
-        return BoundesuWordsService.getVersion();
-    }
-    
-    /**
-     * 将HTML内容转换为DOCX文档
-     * 
-     * @param htmlContent HTML内容
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument htmlToDocx(String htmlContent) throws BoundesuWordsException {
-        return service.convertHtmlToDocx(htmlContent);
-    }
-    
-    /**
-     * 将HTML文件转换为DOCX文档
-     * 
-     * @param htmlFile HTML文件
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument htmlToDocx(File htmlFile) throws BoundesuWordsException {
-        return service.convertHtmlFileToDocx(htmlFile);
-    }
-    
-    /**
-     * 将XML内容转换为DOCX文档
-     * 
-     * @param xmlContent XML内容
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument xmlToDocx(String xmlContent) throws BoundesuWordsException {
-        return service.convertXmlToDocx(xmlContent);
-    }
-    
-    /**
-     * 将XML文件转换为DOCX文档
-     * 
-     * @param xmlFile XML文件
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument xmlToDocx(File xmlFile) throws BoundesuWordsException {
-        return service.convertXmlFileToDocx(xmlFile);
-    }
-    
-    /**
-     * 自动识别文件类型并转换为DOCX文档
-     * 
-     * @param inputFile 输入文件
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument convertToDocx(File inputFile) throws BoundesuWordsException {
-        return service.convertToDocx(inputFile);
-    }
-    
-    /**
-     * 自动识别文件类型并转换为DOCX文档
-     * 
-     * @param inputFilePath 输入文件路径
-     * @return DOCX文档
-     * @throws BoundesuWordsException 转换异常
-     */
-    public XWPFDocument convertToDocx(String inputFilePath) throws BoundesuWordsException {
-        return service.convertToDocx(new File(inputFilePath));
+        return BoundesuConstants.SDK_VERSION;
     }
     
     /**
@@ -121,7 +59,27 @@ public class BoundesuWords {
      * @throws BoundesuWordsException 保存异常
      */
     public void saveToFile(XWPFDocument document, File outputFile) throws BoundesuWordsException {
-        service.saveDocxToFile(document, outputFile);
+        if (document == null) {
+            throw new BoundesuWordsException("文档不能为空");
+        }
+        if (outputFile == null) {
+            throw new BoundesuWordsException("输出文件不能为空");
+        }
+        
+        try {
+            // 确保父目录存在
+            File parentDir = outputFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+            
+            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                document.write(fos);
+                log.info("文档已保存到: {}", outputFile.getAbsolutePath());
+            }
+        } catch (IOException e) {
+            throw new BoundesuWordsException("保存文档失败: " + e.getMessage(), e);
+        }
     }
     
     /**
@@ -132,29 +90,9 @@ public class BoundesuWords {
      * @throws BoundesuWordsException 保存异常
      */
     public void saveToFile(XWPFDocument document, String outputFilePath) throws BoundesuWordsException {
-        service.saveDocxToFile(document, new File(outputFilePath));
-    }
-    
-    /**
-     * 一键转换：从输入文件转换并保存到输出文件
-     * 
-     * @param inputFile 输入文件
-     * @param outputFile 输出文件
-     * @throws BoundesuWordsException 转换异常
-     */
-    public void convert(File inputFile, File outputFile) throws BoundesuWordsException {
-        XWPFDocument document = convertToDocx(inputFile);
-        saveToFile(document, outputFile);
-    }
-    
-    /**
-     * 一键转换：从输入文件转换并保存到输出文件
-     * 
-     * @param inputFilePath 输入文件路径
-     * @param outputFilePath 输出文件路径
-     * @throws BoundesuWordsException 转换异常
-     */
-    public void convert(String inputFilePath, String outputFilePath) throws BoundesuWordsException {
-        convert(new File(inputFilePath), new File(outputFilePath));
+        if (StringUtils.isEmpty(outputFilePath)) {
+            throw new BoundesuWordsException("输出文件路径不能为空");
+        }
+        saveToFile(document, new File(outputFilePath));
     }
 }

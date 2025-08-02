@@ -1,17 +1,19 @@
 package com.boundesu.words.html.converter;
 
+import com.boundesu.words.common.constants.FormatConstants;
+import com.boundesu.words.common.constants.PageConstants;
+import com.boundesu.words.common.constants.StyleConstants;
+import com.boundesu.words.common.constants.ErrorConstants;
 import com.boundesu.words.common.exception.BoundesuWordsException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
-import org.apache.xmlbeans.XmlCursor;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,7 @@ public class HtmlToDocxConverter {
     
     /**
      * 页边距配置类
+     * 提供灵活的页边距设置和验证功能
      */
     public static class PageMargins {
         private final int top;    // 上边距，单位：磅的1/20
@@ -46,6 +49,12 @@ public class HtmlToDocxConverter {
          * @param right 右边距（磅）
          */
         public PageMargins(double top, double bottom, double left, double right) {
+            // 验证页边距值
+            validateMargin(top, "上边距");
+            validateMargin(bottom, "下边距");
+            validateMargin(left, "左边距");
+            validateMargin(right, "右边距");
+            
             this.top = (int) (top * 20);
             this.bottom = (int) (bottom * 20);
             this.left = (int) (left * 20);
@@ -53,12 +62,143 @@ public class HtmlToDocxConverter {
         }
         
         /**
+         * 统一页边距构造函数
+         * @param margin 四边统一的页边距（磅）
+         */
+        public PageMargins(double margin) {
+            this(margin, margin, margin, margin);
+        }
+        
+        /**
+         * 从PageConstants.MarginConfig创建
+         * @param marginConfig 边距配置
+         */
+        public PageMargins(PageConstants.MarginConfig marginConfig) {
+            this(marginConfig.getTop(), marginConfig.getBottom(), 
+                 marginConfig.getLeft(), marginConfig.getRight());
+        }
+        
+        /**
          * 默认页边距（上下左右各1英寸）
          */
         public static PageMargins defaultMargins() {
-            return new PageMargins(72, 72, 72, 72);
+            return new PageMargins(PageConstants.getDefaultMarginConfig());
         }
         
+        /**
+         * 窄页边距（上下左右各0.5英寸）
+         */
+        public static PageMargins narrowMargins() {
+            return new PageMargins(PageConstants.getNarrowMarginConfig());
+        }
+        
+        /**
+         * 宽页边距（上下左右各1.5英寸）
+         */
+        public static PageMargins wideMargins() {
+            return new PageMargins(PageConstants.getWideMarginConfig());
+        }
+        
+        /**
+         * 装订页边距（左边距增加，适合装订）
+         * @param bindingMargin 装订边距增量（磅）
+         */
+        public static PageMargins bindingMargins(double bindingMargin) {
+            return new PageMargins(
+                PageConstants.DEFAULT_MARGIN,
+                PageConstants.DEFAULT_MARGIN,
+                PageConstants.DEFAULT_MARGIN + bindingMargin,
+                PageConstants.DEFAULT_MARGIN
+            );
+        }
+        
+        /**
+         * 从英寸创建页边距
+         * @param topInches 上边距（英寸）
+         * @param bottomInches 下边距（英寸）
+         * @param leftInches 左边距（英寸）
+         * @param rightInches 右边距（英寸）
+         */
+        public static PageMargins fromInches(double topInches, double bottomInches, 
+                                           double leftInches, double rightInches) {
+            return new PageMargins(
+                PageConstants.UnitConverter.inchesToPoints(topInches),
+                PageConstants.UnitConverter.inchesToPoints(bottomInches),
+                PageConstants.UnitConverter.inchesToPoints(leftInches),
+                PageConstants.UnitConverter.inchesToPoints(rightInches)
+            );
+        }
+        
+        /**
+         * 从厘米创建页边距
+         * @param topCm 上边距（厘米）
+         * @param bottomCm 下边距（厘米）
+         * @param leftCm 左边距（厘米）
+         * @param rightCm 右边距（厘米）
+         */
+        public static PageMargins fromCentimeters(double topCm, double bottomCm, 
+                                                 double leftCm, double rightCm) {
+            return new PageMargins(
+                PageConstants.UnitConverter.cmToPoints(topCm),
+                PageConstants.UnitConverter.cmToPoints(bottomCm),
+                PageConstants.UnitConverter.cmToPoints(leftCm),
+                PageConstants.UnitConverter.cmToPoints(rightCm)
+            );
+        }
+        
+        /**
+         * 验证页边距值
+         * @param margin 页边距值（磅）
+         * @param name 边距名称
+         */
+        private void validateMargin(double margin, String name) {
+            if (margin < PageConstants.MIN_MARGIN) {
+                throw new IllegalArgumentException(
+                    String.format("%s不能小于最小值%.1f磅", name, PageConstants.MIN_MARGIN));
+            }
+            if (margin > PageConstants.MAX_MARGIN) {
+                throw new IllegalArgumentException(
+                    String.format("%s不能大于最大值%.1f磅", name, PageConstants.MAX_MARGIN));
+            }
+        }
+        
+        /**
+         * 获取页边距信息字符串
+         */
+        public String getMarginInfo() {
+            return String.format("页边距设置 - 上:%.1f磅, 下:%.1f磅, 左:%.1f磅, 右:%.1f磅",
+                getTopInPoints(), getBottomInPoints(), getLeftInPoints(), getRightInPoints());
+        }
+        
+        /**
+         * 获取上边距（磅）
+         */
+        public double getTopInPoints() {
+            return top / 20.0;
+        }
+        
+        /**
+         * 获取下边距（磅）
+         */
+        public double getBottomInPoints() {
+            return bottom / 20.0;
+        }
+        
+        /**
+         * 获取左边距（磅）
+         */
+        public double getLeftInPoints() {
+            return left / 20.0;
+        }
+        
+        /**
+         * 获取右边距（磅）
+         */
+        public double getRightInPoints() {
+            return right / 20.0;
+        }
+        
+        // 原有的getter方法（返回缇单位）
         public int getTop() { return top; }
         public int getBottom() { return bottom; }
         public int getLeft() { return left; }
@@ -107,7 +247,7 @@ public class HtmlToDocxConverter {
             
         } catch (Exception e) {
             log.error("HTML到DOCX转换失败", e);
-            throw new BoundesuWordsException("HTML_CONVERT_ERROR", "HTML到DOCX转换失败", e);
+            throw new BoundesuWordsException(ErrorConstants.DOCUMENT_CONVERSION_ERROR, "HTML到DOCX转换失败", e);
         }
     }
     
@@ -135,7 +275,7 @@ public class HtmlToDocxConverter {
             log.info("开始转换HTML输入流到DOCX文档");
             
             // 解析HTML输入流
-            Document htmlDoc = Jsoup.parse(htmlInputStream, "UTF-8", "");
+            Document htmlDoc = Jsoup.parse(htmlInputStream, FormatConstants.ENCODING_UTF8, "");
             
             // 创建DOCX文档
             XWPFDocument docxDoc = new XWPFDocument();
@@ -153,7 +293,7 @@ public class HtmlToDocxConverter {
             
         } catch (IOException e) {
             log.error("HTML输入流到DOCX转换失败", e);
-            throw new BoundesuWordsException("HTML_STREAM_CONVERT_ERROR", "HTML输入流到DOCX转换失败", e);
+            throw new BoundesuWordsException(ErrorConstants.DOCUMENT_CONVERSION_ERROR, "HTML输入流到DOCX转换失败", e);
         }
     }
     
@@ -227,6 +367,11 @@ public class HtmlToDocxConverter {
      */
     private void processHeading(Element element, XWPFDocument docxDoc, String tagName) {
         XWPFParagraph paragraph = docxDoc.createParagraph();
+        
+        // 设置标题样式
+        String headingStyle = getHeadingStyle(tagName);
+        paragraph.setStyle(headingStyle);
+        
         XWPFRun run = paragraph.createRun();
         run.setText(element.text());
         run.setBold(true);
@@ -247,6 +392,24 @@ public class HtmlToDocxConverter {
     }
     
     /**
+     * 获取标题样式名称
+     * 
+     * @param tagName 标签名
+     * @return Word标题样式名称
+     */
+    private String getHeadingStyle(String tagName) {
+        switch (tagName) {
+            case "h1": return "Heading 1";
+            case "h2": return "Heading 2";
+            case "h3": return "Heading 3";
+            case "h4": return "Heading 4";
+            case "h5": return "Heading 5";
+            case "h6": return "Heading 6";
+            default: return "Normal";
+        }
+    }
+    
+    /**
      * 获取标题字体大小
      * 
      * @param tagName 标签名
@@ -254,13 +417,13 @@ public class HtmlToDocxConverter {
      */
     private int getHeadingFontSize(String tagName) {
         switch (tagName) {
-            case "h1": return 18;
-            case "h2": return 16;
-            case "h3": return 14;
-            case "h4": return 12;
-            case "h5": return 11;
-            case "h6": return 10;
-            default: return 12;
+            case "h1": return StyleConstants.FONT_SIZE_H1;
+            case "h2": return StyleConstants.FONT_SIZE_H2;
+            case "h3": return StyleConstants.FONT_SIZE_H3;
+            case "h4": return StyleConstants.FONT_SIZE_H4;
+            case "h5": return StyleConstants.FONT_SIZE_H5;
+            case "h6": return StyleConstants.FONT_SIZE_H6;
+            default: return StyleConstants.FONT_SIZE_NORMAL;
         }
     }
     

@@ -1,7 +1,7 @@
 package com.boundesu.words;
 
 import com.boundesu.words.common.util.PerformanceMonitor;
-import com.boundesu.words.core.creator.DocumentCreator;
+import com.boundesu.words.common.creator.DocumentCreator;
 import com.boundesu.words.core.creator.DocumentCreatorFactory;
 import com.boundesu.words.core.advanced.AdvancedDocumentGenerator;
 import org.testng.Assert;

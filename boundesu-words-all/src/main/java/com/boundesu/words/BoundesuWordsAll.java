@@ -1,6 +1,7 @@
 package com.boundesu.words;
 
 import com.boundesu.words.core.BoundesuWords;
+import com.boundesu.words.service.BoundesuWordsService;
 import com.boundesu.words.common.exception.BoundesuWordsException;
 import com.boundesu.words.html.converter.HtmlToDocxConverter;
 import com.boundesu.words.xml.converter.XmlToDocxConverter;
@@ -9,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -23,6 +26,7 @@ public class BoundesuWordsAll {
     private static final Logger log = LoggerFactory.getLogger(BoundesuWordsAll.class);
     
     private final BoundesuWords coreService;
+    private final BoundesuWordsService service;
     private final HtmlToDocxConverter htmlConverter;
     private final XmlToDocxConverter xmlConverter;
     
@@ -31,6 +35,7 @@ public class BoundesuWordsAll {
      */
     public BoundesuWordsAll() {
         this.coreService = new BoundesuWords();
+        this.service = new BoundesuWordsService();
         this.htmlConverter = new HtmlToDocxConverter();
         this.xmlConverter = new XmlToDocxConverter();
         log.info("Boundesu Words All SDK 初始化完成");
@@ -64,7 +69,7 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public XWPFDocument htmlToDocx(String htmlContent) throws BoundesuWordsException {
-        return coreService.htmlToDocx(htmlContent);
+        return htmlConverter.convertHtmlToDocx(htmlContent);
     }
     
     /**
@@ -75,7 +80,11 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public XWPFDocument htmlToDocx(File htmlFile) throws BoundesuWordsException {
-        return coreService.htmlToDocx(htmlFile);
+        try (FileInputStream fis = new FileInputStream(htmlFile)) {
+            return htmlConverter.convertHtmlToDocx(fis);
+        } catch (IOException e) {
+            throw new BoundesuWordsException("读取HTML文件失败: " + e.getMessage(), e);
+        }
     }
     
     /**
@@ -86,7 +95,7 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public XWPFDocument xmlToDocx(String xmlContent) throws BoundesuWordsException {
-        return coreService.xmlToDocx(xmlContent);
+        return xmlConverter.convertXmlToDocx(xmlContent);
     }
     
     /**
@@ -97,7 +106,11 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public XWPFDocument xmlToDocx(File xmlFile) throws BoundesuWordsException {
-        return coreService.xmlToDocx(xmlFile);
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(xmlFile)) {
+            return xmlConverter.convertXmlToDocx(fis);
+        } catch (java.io.IOException e) {
+            throw new BoundesuWordsException("FILE_READ_ERROR", "读取XML文件失败", e);
+        }
     }
     
     /**
@@ -108,7 +121,7 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public XWPFDocument convertToDocx(File inputFile) throws BoundesuWordsException {
-        return coreService.convertToDocx(inputFile);
+        return service.convertToDocx(inputFile);
     }
     
     /**
@@ -123,6 +136,17 @@ public class BoundesuWordsAll {
     }
     
     /**
+     * 保存DOCX文档到文件
+     * 
+     * @param document DOCX文档
+     * @param outputFilePath 输出文件路径
+     * @throws BoundesuWordsException 保存异常
+     */
+    public void saveToFile(XWPFDocument document, String outputFilePath) throws BoundesuWordsException {
+        coreService.saveToFile(document, outputFilePath);
+    }
+    
+    /**
      * 一键转换：从输入文件转换并保存到输出文件
      * 
      * @param inputFile 输入文件
@@ -130,7 +154,8 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public void convert(File inputFile, File outputFile) throws BoundesuWordsException {
-        coreService.convert(inputFile, outputFile);
+        XWPFDocument document = convertToDocx(inputFile);
+        saveToFile(document, outputFile);
     }
     
     /**
@@ -141,7 +166,7 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public void convert(String inputFilePath, String outputFilePath) throws BoundesuWordsException {
-        coreService.convert(inputFilePath, outputFilePath);
+        convert(new File(inputFilePath), new File(outputFilePath));
     }
     
     // ==================== 直接访问转换器 ====================
