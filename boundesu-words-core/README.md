@@ -1,18 +1,210 @@
-# Boundesu Words Core
+# Boundesu Words Core - 核心类架构
 
-> Boundesu Words SDK 核心转换引擎
+## 概述
 
-## 📖 模块简介
+Boundesu Words Core 已从工具类架构重构为核心类架构，更好地模拟 Aspose Words API 的设计模式，提供更直观和强大的文档处理能力。
 
-boundesu-words-core 是 Boundesu Words SDK 的核心模块，提供了文档转换的核心引擎和高级文档生成功能。该模块实现了多种文档创建方式，支持从简单的文本转换到复杂的结构化文档生成。
+## 核心类结构
+
+### 1. 文档核心类
+
+#### Document
+- **位置**: `com.boundesu.words.core.Document`
+- **功能**: 表示 Word 文档的核心类
+- **主要方法**:
+  - `Document()` - 创建新文档
+  - `Document(String fileName)` - 从文件加载文档
+  - `Document(String fileName, LoadOptions loadOptions)` - 使用加载选项从文件加载
+  - `save(String fileName)` - 保存文档
+  - `save(String fileName, SaveOptions saveOptions)` - 使用保存选项保存文档
+
+#### DocumentBuilder
+- **位置**: `com.boundesu.words.core.builder.DocumentBuilder`
+- **功能**: 用于构建和编辑文档内容
+- **主要功能**:
+  - 文本写入和格式设置
+  - 字体格式控制
+  - 段落格式设置
+  - 页面设置
+  - 插入表格、图片、超链接等
+
+### 2. 选项类
+
+#### LoadOptions
+- **位置**: `com.boundesu.words.core.options.LoadOptions`
+- **功能**: 文档加载选项基类
+- **支持格式**: DOC, DOCX, HTML, RTF, TXT 等
+
+#### HtmlLoadOptions
+- **位置**: `com.boundesu.words.core.options.HtmlLoadOptions`
+- **功能**: HTML 文档加载专用选项
+- **特性**: Web 请求超时、块导入模式等
+
+#### SaveOptions
+- **位置**: `com.boundesu.words.core.options.SaveOptions`
+- **功能**: 文档保存选项抽象基类
+
+#### DocxSaveOptions
+- **位置**: `com.boundesu.words.core.options.DocxSaveOptions`
+- **功能**: DOCX 格式保存选项
+- **特性**: 压缩级别、密码保护等
+
+#### PdfSaveOptions
+- **位置**: `com.boundesu.words.core.options.PdfSaveOptions`
+- **功能**: PDF 格式保存选项
+- **特性**: PDF 合规性、字体嵌入、图像压缩等
+
+### 3. 主入口类
+
+#### BoundesuWords
+- **位置**: `com.boundesu.words.core.BoundesuWords`
+- **功能**: SDK 主入口，提供便捷的 API 方法
+- **主要方法**:
+  - `createDocument()` - 创建新文档
+  - `loadDocument(String fileName)` - 加载文档
+  - `createDocumentBuilder()` - 创建文档构建器
+  - `saveDocument()` - 保存文档
 
 ## ✨ 主要功能
 
-- 🔄 **核心转换引擎**: 统一的文档转换接口和实现
-- 🏭 **文档创建器工厂**: 支持多种文档创建方式
-- 📊 **高级文档生成器**: 支持复杂文档结构和样式
-- 🎯 **智能文件识别**: 自动识别输入文件类型并选择合适的转换器
-- 📝 **一键转换**: 简化的API接口，支持文件到文件的直接转换
+- **多格式支持**: 支持 DOCX、PDF、HTML、RTF 等多种文档格式
+- **高性能转换**: 基于 Apache POI 的高效文档处理引擎
+- **灵活配置**: 提供丰富的配置选项，满足不同场景需求
+- **易于集成**: 简洁的 API 设计，快速集成到现有项目
+
+## 🚀 快速开始
+
+### 添加依赖
+
+```xml
+<dependency>
+    <groupId>com.boundesu</groupId>
+    <artifactId>boundesu-words-core</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</dependency>
+```
+
+### 基本使用
+
+```java
+// 创建 BoundesuWords 实例
+BoundesuWords boundesuWords = new BoundesuWords();
+
+// 获取版本信息
+String version = boundesuWords.getVersion();
+System.out.println("Boundesu Words 版本: " + version);
+
+// 保存文档到文件
+boundesuWords.saveToFile(document, "output.docx");
+```
+
+## 使用示例
+
+### 基本文档创建
+
+```java
+// 创建 SDK 实例
+BoundesuWords sdk = new BoundesuWords();
+
+// 创建新文档
+Document doc = sdk.createDocument();
+DocumentBuilder builder = sdk.createDocumentBuilder(doc);
+
+// 设置字体格式
+builder.getFont().setName("Arial");
+builder.getFont().setSize(12);
+builder.getFont().setBold(true);
+
+// 写入文本
+builder.writeln("Hello, Boundesu Words!");
+
+// 保存文档
+sdk.saveDocument(doc, "output.docx");
+```
+
+### 使用加载和保存选项
+
+```java
+// HTML 加载选项
+HtmlLoadOptions htmlOptions = new HtmlLoadOptions();
+htmlOptions.setWebRequestTimeout(5000);
+
+// 加载 HTML 文档
+Document doc = sdk.loadDocument("input.html", htmlOptions);
+
+// PDF 保存选项
+PdfSaveOptions pdfOptions = new PdfSaveOptions();
+pdfOptions.setCompliance(PdfSaveOptions.PdfCompliance.PDF_A_1B);
+pdfOptions.setEmbedFullFonts(true);
+
+// 保存为 PDF
+sdk.saveDocument(doc, "output.pdf", pdfOptions);
+```
+
+### 高级格式设置
+
+```java
+DocumentBuilder builder = sdk.createDocumentBuilder();
+
+// 段落格式
+builder.getParagraphFormat().setAlignment(DocumentBuilder.ParagraphAlignment.CENTER);
+builder.getParagraphFormat().setSpaceBefore(10);
+builder.getParagraphFormat().setSpaceAfter(10);
+
+// 字体格式
+builder.getFont().setUnderline(DocumentBuilder.UnderlineType.SINGLE);
+builder.getFont().setHighlightColor(Color.YELLOW);
+builder.getFont().setSubscript(true);
+
+// 页面设置
+builder.getPageSetup().setPaperSize(DocumentBuilder.PaperSize.A4);
+builder.getPageSetup().setOrientation(DocumentBuilder.Orientation.PORTRAIT);
+```
+
+## 架构优势
+
+### 1. API 兼容性
+- 严格按照 Aspose Words API 设计模式
+- 平滑的代码迁移体验
+- 熟悉的方法命名和参数结构
+
+### 2. 类型安全
+- 使用枚举类型替代字符串常量
+- 编译时类型检查
+- 更好的 IDE 支持和代码提示
+
+### 3. 功能完整性
+- 涵盖文档创建、加载、编辑、保存全流程
+- 支持多种文档格式
+- 丰富的格式设置选项
+
+### 4. 扩展性
+- 模块化设计
+- 清晰的继承关系
+- 便于添加新功能和格式支持
+
+## 迁移指南
+
+### 从工具类迁移到核心类
+
+**旧方式 (工具类)**:
+```java
+DocumentBuilderUtils.Font font = new DocumentBuilderUtils.Font();
+DocumentBuilderUtils utils = new DocumentBuilderUtils();
+```
+
+**新方式 (核心类)**:
+```java
+Document doc = new Document();
+DocumentBuilder builder = new DocumentBuilder(doc.getInternalDocument());
+DocumentBuilder.Font font = builder.getFont();
+```
+
+### 主要变化
+1. **类位置变更**: 从 `util` 包移动到对应的功能包
+2. **实例化方式**: 不再是静态工具类，而是面向对象的核心类
+3. **方法调用**: 通过实例方法而非静态方法调用
+4. **包结构**: 更清晰的包组织结构
 
 ## 🏗️ 核心组件
 

@@ -75,10 +75,9 @@ public class Document {
     /**
      * 关闭文档，释放资源
      *
-     * @throws IOException 关闭异常/**
-     * 将文档写入到输出流
-     * 
      * @param out 输出流
+     * @throws IOException 关闭异常/**
+     *                     将文档写入到输出流
      * @throws IOException 如果写入失败
      */
     public void write(OutputStream out) throws IOException {
@@ -95,6 +94,7 @@ public class Document {
             xwpfDocument.close();
         }
     }
+
     /**
      * 获取文档的段落数量
      *
