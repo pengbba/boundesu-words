@@ -2,7 +2,7 @@ package com.boundesu.words.example;
 
 import com.boundesu.words.BoundesuWordsAll;
 import com.boundesu.words.common.exception.BoundesuWordsException;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import com.boundesu.words.common.model.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,14 +33,14 @@ public class BoundesuWordsExample {
             // 2. HTML内容转换示例
             System.out.println("=== HTML内容转换 ===");
             String htmlContent = "<h1>标题</h1><p>这是一个段落。</p><p>这是另一个段落。</p>";
-            XWPFDocument docFromHtml = sdk.htmlToDocx(htmlContent);
+            Document docFromHtml = sdk.htmlToDocx(htmlContent);
             sdk.saveToFile(docFromHtml, new File("output_from_html.docx"));
             System.out.println("HTML内容已转换并保存到 output_from_html.docx");
 
             // 3. XML内容转换示例
             System.out.println("\n=== XML内容转换 ===");
             String xmlContent = "<document><title>XML标题</title><paragraph>这是XML段落。</paragraph></document>";
-            XWPFDocument docFromXml = sdk.xmlToDocx(xmlContent);
+            Document docFromXml = sdk.xmlToDocx(xmlContent);
             sdk.saveToFile(docFromXml, new File("output_from_xml.docx"));
             System.out.println("XML内容已转换并保存到 output_from_xml.docx");
 
@@ -82,13 +82,13 @@ public class BoundesuWordsExample {
 
             // 直接使用HTML转换器
             String html = "<h2>使用HTML转换器</h2><p>直接调用HTML转换器。</p>";
-            XWPFDocument htmlDoc = sdk.getHtmlConverter().convertHtmlToDocx(html);
+            Document htmlDoc = sdk.getHtmlConverter().convertHtmlToDocx(html);
             sdk.saveToFile(htmlDoc, new File("direct_html_converter.docx"));
             System.out.println("直接使用HTML转换器完成");
 
             // 直接使用XML转换器
             String xml = "<root><heading>使用XML转换器</heading><content>直接调用XML转换器。</content></root>";
-            XWPFDocument xmlDoc = sdk.getXmlConverter().convertXmlToDocx(xml);
+            Document xmlDoc = sdk.getXmlConverter().convertXmlToDocx(xml);
             sdk.saveToFile(xmlDoc, new File("direct_xml_converter.docx"));
             System.out.println("直接使用XML转换器完成");
 

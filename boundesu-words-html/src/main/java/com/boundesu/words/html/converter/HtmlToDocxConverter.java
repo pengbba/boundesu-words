@@ -5,6 +5,7 @@ import com.boundesu.words.common.constants.FormatConstants;
 import com.boundesu.words.common.constants.PageConstants;
 import com.boundesu.words.common.constants.StyleConstants;
 import com.boundesu.words.common.exception.BoundesuWordsException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -14,8 +15,6 @@ import org.jsoup.nodes.Element;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTDocument1;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageMar;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,9 +26,8 @@ import java.math.BigInteger;
  * @author Boundesu
  * @version 1.0.0
  */
+@Slf4j
 public class HtmlToDocxConverter {
-
-    private static final Logger log = LoggerFactory.getLogger(HtmlToDocxConverter.class);
 
     /**
      * 将HTML内容转换为DOCX文档
@@ -38,7 +36,7 @@ public class HtmlToDocxConverter {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertHtmlToDocx(String htmlContent) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertHtmlToDocx(String htmlContent) throws BoundesuWordsException {
         return convertHtmlToDocx(htmlContent, null);
     }
 
@@ -50,7 +48,7 @@ public class HtmlToDocxConverter {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertHtmlToDocx(String htmlContent, PageMargins margins) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertHtmlToDocx(String htmlContent, PageMargins margins) throws BoundesuWordsException {
         try {
             log.info("开始转换HTML内容到DOCX文档");
 
@@ -69,7 +67,7 @@ public class HtmlToDocxConverter {
             processHtmlElements(htmlDoc, docxDoc);
 
             log.info("HTML到DOCX转换完成");
-            return docxDoc;
+            return new com.boundesu.words.common.model.Document(docxDoc);
 
         } catch (Exception e) {
             log.error("HTML到DOCX转换失败", e);
@@ -84,7 +82,7 @@ public class HtmlToDocxConverter {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertHtmlToDocx(InputStream htmlInputStream) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertHtmlToDocx(InputStream htmlInputStream) throws BoundesuWordsException {
         return convertHtmlToDocx(htmlInputStream, null);
     }
 
@@ -96,7 +94,7 @@ public class HtmlToDocxConverter {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertHtmlToDocx(InputStream htmlInputStream, PageMargins margins) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertHtmlToDocx(InputStream htmlInputStream, PageMargins margins) throws BoundesuWordsException {
         try {
             log.info("开始转换HTML输入流到DOCX文档");
 
@@ -115,7 +113,7 @@ public class HtmlToDocxConverter {
             processHtmlElements(htmlDoc, docxDoc);
 
             log.info("HTML输入流到DOCX转换完成");
-            return docxDoc;
+            return new com.boundesu.words.common.model.Document(docxDoc);
 
         } catch (IOException e) {
             log.error("HTML输入流到DOCX转换失败", e);

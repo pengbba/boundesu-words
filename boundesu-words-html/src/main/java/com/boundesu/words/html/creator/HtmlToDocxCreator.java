@@ -3,7 +3,6 @@ package com.boundesu.words.html.creator;
 import com.boundesu.words.common.creator.DocumentCreator;
 import com.boundesu.words.common.exception.BoundesuWordsException;
 import com.boundesu.words.html.converter.HtmlToDocxConverter;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,7 +278,7 @@ public class HtmlToDocxCreator implements DocumentCreator {
         }
     }
 
-    public XWPFDocument createDocument() throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document createDocument() throws BoundesuWordsException {
         try {
             // 完成HTML结构
             finalizeHtml();
@@ -288,14 +287,14 @@ public class HtmlToDocxCreator implements DocumentCreator {
             String completeHtml = htmlContent.toString();
             log.debug("开始将HTML转换为DOCX文档");
 
-            XWPFDocument document = converter.convertHtmlToDocx(completeHtml);
+            com.boundesu.words.common.model.Document document = converter.convertHtmlToDocx(completeHtml);
 
             // 设置文档属性
             if (!title.isEmpty()) {
-                document.getProperties().getCoreProperties().setTitle(title);
+                document.getXWPFDocument().getProperties().getCoreProperties().setTitle(title);
             }
             if (!author.isEmpty()) {
-                document.getProperties().getCoreProperties().setCreator(author);
+                document.getXWPFDocument().getProperties().getCoreProperties().setCreator(author);
             }
 
             log.info("HTML到DOCX文档创建完成");
@@ -308,7 +307,8 @@ public class HtmlToDocxCreator implements DocumentCreator {
     }
 
     public void saveToFile(String filePath) throws BoundesuWordsException {
-        try (XWPFDocument document = createDocument()) {
+        try {
+            com.boundesu.words.common.model.Document document = createDocument();
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 document.write(baos);
 
@@ -321,6 +321,7 @@ public class HtmlToDocxCreator implements DocumentCreator {
 
                 log.info("文档已保存到: {}", filePath);
             }
+            document.close();
         } catch (IOException e) {
             log.error("保存文档到文件失败: {}", filePath, e);
             throw new BoundesuWordsException("FILE_SAVE_ERROR", "保存文档到文件失败: " + filePath, e);
@@ -328,11 +329,13 @@ public class HtmlToDocxCreator implements DocumentCreator {
     }
 
     public byte[] saveToBytes() throws BoundesuWordsException {
-        try (XWPFDocument document = createDocument()) {
+        try {
+            com.boundesu.words.common.model.Document document = createDocument();
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 document.write(baos);
                 byte[] result = baos.toByteArray();
                 log.debug("文档已转换为字节数组，大小: {} bytes", result.length);
+                document.close();
                 return result;
             }
         } catch (IOException e) {

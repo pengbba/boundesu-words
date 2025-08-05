@@ -8,7 +8,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -35,14 +34,14 @@ public class XmlToDocxConverter {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertXmlToDocx(String xmlContent) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertXmlToDocx(String xmlContent) throws BoundesuWordsException {
         try {
             log.info("开始转换XML内容到DOCX文档");
 
             // 解析XML内容
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document xmlDoc = builder.parse(new ByteArrayInputStream(xmlContent.getBytes(FormatConstants.ENCODING_UTF8)));
+            org.w3c.dom.Document xmlDoc = builder.parse(new ByteArrayInputStream(xmlContent.getBytes(FormatConstants.ENCODING_UTF8)));
 
             // 创建DOCX文档
             XWPFDocument docxDoc = new XWPFDocument();
@@ -51,7 +50,7 @@ public class XmlToDocxConverter {
             processXmlElements(xmlDoc, docxDoc);
 
             log.info("XML到DOCX转换完成");
-            return docxDoc;
+            return new com.boundesu.words.common.model.Document(docxDoc);
 
         } catch (Exception e) {
             log.error("XML到DOCX转换失败", e);
@@ -66,14 +65,14 @@ public class XmlToDocxConverter {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertXmlToDocx(InputStream xmlInputStream) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertXmlToDocx(InputStream xmlInputStream) throws BoundesuWordsException {
         try {
             log.info("开始转换XML输入流到DOCX文档");
 
             // 解析XML输入流
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document xmlDoc = builder.parse(xmlInputStream);
+            org.w3c.dom.Document xmlDoc = builder.parse(xmlInputStream);
 
             // 创建DOCX文档
             XWPFDocument docxDoc = new XWPFDocument();
@@ -82,7 +81,7 @@ public class XmlToDocxConverter {
             processXmlElements(xmlDoc, docxDoc);
 
             log.info("XML输入流到DOCX转换完成");
-            return docxDoc;
+            return new com.boundesu.words.common.model.Document(docxDoc);
 
         } catch (Exception e) {
             log.error("XML输入流到DOCX转换失败", e);
@@ -96,7 +95,7 @@ public class XmlToDocxConverter {
      * @param xmlDoc  XML文档
      * @param docxDoc DOCX文档
      */
-    private void processXmlElements(Document xmlDoc, XWPFDocument docxDoc) {
+    private void processXmlElements(org.w3c.dom.Document xmlDoc, XWPFDocument docxDoc) {
         Element root = xmlDoc.getDocumentElement();
         if (root != null) {
             processNode(root, docxDoc);

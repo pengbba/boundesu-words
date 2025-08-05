@@ -9,9 +9,7 @@ import com.boundesu.words.core.creator.DocumentCreatorFactory;
 import com.boundesu.words.html.converter.HtmlToDocxConverter;
 import com.boundesu.words.html.parser.HtmlContentParser;
 import com.boundesu.words.xml.parser.XmlContentParser;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -153,13 +151,8 @@ public class BoundesuWordsSDK {
      */
     public static void convertHtmlToDocx(InputStream htmlInputStream, Path outputPath, HtmlToDocxConverter.PageMargins margins) throws IOException, BoundesuWordsException {
         HtmlToDocxConverter converter = new HtmlToDocxConverter();
-        XWPFDocument document = converter.convertHtmlToDocx(htmlInputStream, margins);
-
-        try (FileOutputStream fos = new FileOutputStream(outputPath.toFile())) {
-            document.write(fos);
-        } finally {
-            document.close();
-        }
+        com.boundesu.words.common.model.Document document = converter.convertHtmlToDocx(htmlInputStream, margins);
+        document.saveToFile(outputPath.toString());
     }
 
     /**
@@ -173,13 +166,8 @@ public class BoundesuWordsSDK {
      */
     public static void convertHtmlToDocx(String htmlContent, Path outputPath, HtmlToDocxConverter.PageMargins margins) throws IOException, BoundesuWordsException {
         HtmlToDocxConverter converter = new HtmlToDocxConverter();
-        XWPFDocument document = converter.convertHtmlToDocx(htmlContent, margins);
-
-        try (FileOutputStream fos = new FileOutputStream(outputPath.toFile())) {
-            document.write(fos);
-        } finally {
-            document.close();
-        }
+        com.boundesu.words.common.model.Document document = converter.convertHtmlToDocx(htmlContent, margins);
+        document.saveToFile(outputPath.toString());
     }
 
     /**

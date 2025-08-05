@@ -69,7 +69,7 @@ public class BoundesuWordsService {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertHtmlToDocx(String htmlContent) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertHtmlToDocx(String htmlContent) throws BoundesuWordsException {
         if (StringUtils.isBlank(htmlContent)) {
             throw new BoundesuWordsException("INVALID_INPUT", "HTML内容不能为空");
         }
@@ -85,7 +85,7 @@ public class BoundesuWordsService {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertHtmlFileToDocx(File htmlFile) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertHtmlFileToDocx(File htmlFile) throws BoundesuWordsException {
         if (htmlFile == null || !htmlFile.exists()) {
             throw new BoundesuWordsException("FILE_NOT_FOUND", "HTML文件不存在");
         }
@@ -105,7 +105,7 @@ public class BoundesuWordsService {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertXmlToDocx(String xmlContent) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertXmlToDocx(String xmlContent) throws BoundesuWordsException {
         if (StringUtils.isBlank(xmlContent)) {
             throw new BoundesuWordsException("INVALID_INPUT", "XML内容不能为空");
         }
@@ -121,7 +121,7 @@ public class BoundesuWordsService {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertXmlFileToDocx(File xmlFile) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertXmlFileToDocx(File xmlFile) throws BoundesuWordsException {
         if (xmlFile == null || !xmlFile.exists()) {
             throw new BoundesuWordsException("FILE_NOT_FOUND", "XML文件不存在");
         }
@@ -141,7 +141,7 @@ public class BoundesuWordsService {
      * @return DOCX文档
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertToDocx(File inputFile) throws BoundesuWordsException {
+    public com.boundesu.words.common.model.Document convertToDocx(File inputFile) throws BoundesuWordsException {
         if (inputFile == null || !inputFile.exists()) {
             throw new BoundesuWordsException("FILE_NOT_FOUND", "输入文件不存在");
         }
@@ -187,5 +187,19 @@ public class BoundesuWordsService {
         } catch (IOException e) {
             throw new BoundesuWordsException("FILE_WRITE_ERROR", "保存DOCX文档失败", e);
         }
+    }
+
+    /**
+     * 保存封装的Document到文件
+     *
+     * @param document   封装的Document对象
+     * @param outputFile 输出文件
+     * @throws BoundesuWordsException 保存异常
+     */
+    public void saveDocxToFile(com.boundesu.words.common.model.Document document, File outputFile) throws BoundesuWordsException {
+        if (document == null) {
+            throw new BoundesuWordsException("INVALID_INPUT", "Document对象不能为空");
+        }
+        saveDocxToFile(document.getXWPFDocument(), outputFile);
     }
 }

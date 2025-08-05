@@ -1,6 +1,7 @@
 package com.boundesu.words;
 
 import com.boundesu.words.common.exception.BoundesuWordsException;
+import com.boundesu.words.common.model.Document;
 import com.boundesu.words.core.BoundesuWords;
 import com.boundesu.words.html.converter.HtmlToDocxConverter;
 import com.boundesu.words.service.BoundesuWordsService;
@@ -65,10 +66,10 @@ public class BoundesuWordsAll {
      * 将HTML内容转换为DOCX文档
      *
      * @param htmlContent HTML内容
-     * @return DOCX文档
+     * @return 封装的Document对象
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument htmlToDocx(String htmlContent) throws BoundesuWordsException {
+    public Document htmlToDocx(String htmlContent) throws BoundesuWordsException {
         return htmlConverter.convertHtmlToDocx(htmlContent);
     }
 
@@ -76,10 +77,10 @@ public class BoundesuWordsAll {
      * 将HTML文件转换为DOCX文档
      *
      * @param htmlFile HTML文件
-     * @return DOCX文档
+     * @return 封装的Document对象
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument htmlToDocx(File htmlFile) throws BoundesuWordsException {
+    public Document htmlToDocx(File htmlFile) throws BoundesuWordsException {
         try (FileInputStream fis = new FileInputStream(htmlFile)) {
             return htmlConverter.convertHtmlToDocx(fis);
         } catch (IOException e) {
@@ -91,10 +92,10 @@ public class BoundesuWordsAll {
      * 将XML内容转换为DOCX文档
      *
      * @param xmlContent XML内容
-     * @return DOCX文档
+     * @return 封装的Document对象
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument xmlToDocx(String xmlContent) throws BoundesuWordsException {
+    public Document xmlToDocx(String xmlContent) throws BoundesuWordsException {
         return xmlConverter.convertXmlToDocx(xmlContent);
     }
 
@@ -102,10 +103,10 @@ public class BoundesuWordsAll {
      * 将XML文件转换为DOCX文档
      *
      * @param xmlFile XML文件
-     * @return DOCX文档
+     * @return 封装的Document对象
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument xmlToDocx(File xmlFile) throws BoundesuWordsException {
+    public Document xmlToDocx(File xmlFile) throws BoundesuWordsException {
         try (java.io.FileInputStream fis = new java.io.FileInputStream(xmlFile)) {
             return xmlConverter.convertXmlToDocx(fis);
         } catch (java.io.IOException e) {
@@ -117,11 +118,22 @@ public class BoundesuWordsAll {
      * 自动识别文件类型并转换为DOCX文档
      *
      * @param inputFile 输入文件
-     * @return DOCX文档
+     * @return 封装的Document对象
      * @throws BoundesuWordsException 转换异常
      */
-    public XWPFDocument convertToDocx(File inputFile) throws BoundesuWordsException {
+    public Document convertToDocx(File inputFile) throws BoundesuWordsException {
         return service.convertToDocx(inputFile);
+    }
+
+    /**
+     * 保存封装的Document到文件
+     *
+     * @param document   封装的Document对象
+     * @param outputFile 输出文件
+     * @throws BoundesuWordsException 保存异常
+     */
+    public void saveToFile(Document document, File outputFile) throws BoundesuWordsException {
+        coreService.saveToFile(document.getXWPFDocument(), outputFile);
     }
 
     /**
@@ -133,6 +145,17 @@ public class BoundesuWordsAll {
      */
     public void saveToFile(XWPFDocument document, File outputFile) throws BoundesuWordsException {
         coreService.saveToFile(document, outputFile);
+    }
+
+    /**
+     * 保存封装的Document到文件
+     *
+     * @param document       封装的Document对象
+     * @param outputFilePath 输出文件路径
+     * @throws BoundesuWordsException 保存异常
+     */
+    public void saveToFile(Document document, String outputFilePath) throws BoundesuWordsException {
+        coreService.saveToFile(document.getXWPFDocument(), outputFilePath);
     }
 
     /**
@@ -154,7 +177,7 @@ public class BoundesuWordsAll {
      * @throws BoundesuWordsException 转换异常
      */
     public void convert(File inputFile, File outputFile) throws BoundesuWordsException {
-        XWPFDocument document = convertToDocx(inputFile);
+        Document document = convertToDocx(inputFile);
         saveToFile(document, outputFile);
     }
 
