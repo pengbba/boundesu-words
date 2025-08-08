@@ -16,9 +16,12 @@ DOCX格式的高质量转换功能。该SDK采用模块化设计，支持多种�
 - 🔄 **多格式转换**: 支持HTML、XML到DOCX的无缝转换
 - 🏗️ **模块化架构**: 清晰的模块分离，便于维护和扩展
 - 🎨 **丰富样式**: 支持文本格式、表格、列表等多种文档元素
+- 🎯 **动态样式解析**: 智能解析CSS样式，支持边框、颜色、字体等动态设置
+- 📊 **表格增强**: 支持复杂表格结构，包括单元格边框、内边距、背景色等
 - ⚡ **高性能**: 内置性能监控，优化转换效率
 - 🛡️ **异常处理**: 完善的异常处理机制，提供详细错误信息
 - 📝 **易于使用**: 简洁的API设计，支持链式调用
+- 🔍 **CSS选择器**: 支持组合选择器（如 `th, td`）和复杂CSS规则解析
 
 ## 🏗️ 项目架构
 
@@ -65,22 +68,21 @@ boundesu-words/
 #### 1. 简单的HTML转换
 
 ```java
-import com.boundesu.words.BoundesuWordsAll;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import com.boundesu.words.core.Document;
+import com.boundesu.words.core.example.HtmlLoadExample;
 
 public class Example {
     public static void main(String[] args) {
-        // 创建SDK实例
-        BoundesuWordsAll sdk = new BoundesuWordsAll();
-
         try {
-            // HTML内容转换
-            String htmlContent = "<h1>标题</h1><p>这是一个段落。</p>";
-            XWPFDocument document = sdk.htmlToDocx(htmlContent);
-
-            // 保存文档
-            sdk.saveToFile(document, new File("output.docx"));
-
+            // 创建文档实例
+            Document doc = new Document();
+            
+            // 从HTML文件加载
+            doc.loadFromHtml("input.html");
+            
+            // 保存为DOCX
+            doc.save("output.docx");
+            
             System.out.println("转换完成！");
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,26 +91,57 @@ public class Example {
 }
 ```
 
-#### 2. XML转换示例
+#### 2. 带样式的HTML转换
 
 ```java
-// XML内容转换
-String xmlContent = "<document><title>XML标题</title><paragraph>这是XML段落。</paragraph></document>";
-XWPFDocument document = sdk.xmlToDocx(xmlContent);
-sdk.
-
-saveToFile(document, new File("xml_output.docx"));
+// 支持复杂CSS样式的HTML转换
+String htmlWithStyles = """
+    <style>
+        table, th, td { border: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .highlight { color: red; font-weight: bold; }
+    </style>
+    <table>
+        <tr><th>标题1</th><th>标题2</th></tr>
+        <tr><td>数据1</td><td class="highlight">重要数据</td></tr>
+    </table>
+    """;
+    
+Document doc = new Document();
+doc.loadFromHtml(htmlWithStyles);
+doc.save("styled_output.docx");
 ```
 
-#### 3. 文件转换
+#### 3. 使用HTML加载选项
 
 ```java
-// 自动识别文件类型并转换
-File inputFile = new File("input.html");
-File outputFile = new File("output.docx");
-sdk.
+import com.boundesu.words.core.HtmlLoadOptions;
 
-convert(inputFile, outputFile);
+// 创建HTML加载选项
+HtmlLoadOptions options = new HtmlLoadOptions();
+options.setEncoding("UTF-8");
+options.setBaseUri("file:///path/to/resources/");
+
+// 使用选项加载HTML
+Document doc = new Document("input.html", options);
+doc.save("output.docx");
+```
+
+#### 4. 批量转换
+
+```java
+// 批量转换HTML文件
+File[] htmlFiles = new File("input_folder").listFiles((dir, name) -> name.endsWith(".html"));
+
+for (File htmlFile : htmlFiles) {
+    Document doc = new Document();
+    doc.loadFromHtml(htmlFile.getAbsolutePath());
+    
+    String outputName = htmlFile.getName().replace(".html", ".docx");
+    doc.save("output_folder/" + outputName);
+    
+    System.out.println("已转换: " + htmlFile.getName());
+}
 ```
 
 ### 高级功能
@@ -193,9 +226,21 @@ HtmlToDocxConverter.PageMargins margins = new HtmlToDocxConverter.PageMargins(
 
 - 标题标签：`<h1>` - `<h6>`
 - 段落标签：`<p>`
-- 文本格式：`<b>`, `<strong>`, `<i>`, `<em>`
+- 文本格式：`<b>`, `<strong>`, `<i>`, `<em>`, `<u>`, `<s>`
 - 列表标签：`<ul>`, `<ol>`, `<li>`
-- 表格标签：`<table>`, `<tr>`, `<td>`, `<th>`
+- 表格标签：`<table>`, `<tr>`, `<td>`, `<th>`, `<thead>`, `<tbody>`
+- 链接标签：`<a href="...">`
+- 图片标签：`<img src="...">`
+- 分割线：`<hr>`
+- 换行：`<br>`
+
+**支持的CSS属性：**
+
+- 文本样式：`color`, `font-size`, `font-weight`, `font-style`
+- 边框样式：`border`, `border-width`, `border-style`, `border-color`
+- 背景样式：`background-color`
+- 间距样式：`padding`, `margin`
+- 表格样式：`border-collapse`, `text-align`
 
 #### XmlToDocxConverter
 
@@ -268,6 +313,51 @@ mvn clean test
 mvn test -pl boundesu-words-core
 ```
 
+运行示例程序：
+
+```bash
+# 编译项目
+mvn clean compile
+
+# 运行HTML转换示例
+cd boundesu-words-core
+java -cp "target/classes;target/dependency/*" com.boundesu.words.core.example.HtmlLoadExample
+```
+
+### 测试文件
+
+项目包含以下测试文件：
+- `test-input.html` - HTML转换测试文件
+- `test-image.jpg` - 图片处理测试文件
+
+## 🐛 故障排除
+
+### 常见问题
+
+**1. 找不到主类错误**
+```
+错误: 找不到或无法加载主类 com.boundesu.words.examples.HtmlLoadExample
+```
+解决方案：确保使用正确的包名 `com.boundesu.words.core.example.HtmlLoadExample`
+
+**2. 文件被占用错误**
+```
+FileNotFoundException: 文件被另一个程序占用
+```
+解决方案：关闭可能打开目标文件的程序（如Microsoft Word）
+
+**3. CSS样式不生效**
+- 确保CSS选择器语法正确
+- 检查是否使用了支持的CSS属性
+- 验证HTML结构是否正确
+
+**4. 中文乱码问题**
+```java
+// 设置正确的编码
+HtmlLoadOptions options = new HtmlLoadOptions();
+options.setEncoding("UTF-8");
+```
+
 ## 📦 构建
 
 编译项目：
@@ -318,12 +408,35 @@ mvn clean install
 - [SLF4J](http://www.slf4j.org/) - 日志门面
 - [Logback](http://logback.qos.ch/) - 日志实现
 
+## 📈 版本历史
+
+### v1.0.0 (当前版本)
+- ✅ 基础HTML到DOCX转换功能
+- ✅ CSS样式解析和应用
+- ✅ 表格边框动态设置
+- ✅ 组合CSS选择器支持
+- ✅ 完善的异常处理机制
+- ✅ 性能监控和日志记录
+
+### 计划中的功能
+- 🔄 更多HTML标签支持
+- 🎨 高级CSS样式支持
+- 📊 图表和图形转换
+- 🔗 超链接和书签支持
+- 📱 响应式布局转换
+
 ## 📞 联系我们
 
 - 项目主页: [GitHub](https://github.com/boundesu/boundesu-words)
 - 问题反馈: [Issues](https://github.com/boundesu/boundesu-words/issues)
-- 邮箱: boundesu@example.com
+- 邮箱: support@boundesu.com
+
+## 🌟 Star History
+
+如果这个项目对您有帮助，请给我们一个 ⭐ Star！
 
 ---
 
 **Boundesu Words SDK** - 让文档转换变得简单高效！ 🚀
+
+*最后更新: 2024年12月*

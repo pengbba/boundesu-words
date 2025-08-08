@@ -1,9 +1,11 @@
 package com.boundesu.words.core.builder;
 
 import org.apache.poi.xwpf.usermodel.*;
-import org.apache.poi.util.Units;
-import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
-import java.awt.Color;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTHyperlink;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTR;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
+
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -88,16 +90,16 @@ public class DocumentBuilder {
             currentRun.setFontSize((int) font.getSize());
             currentRun.setBold(font.isBold());
             currentRun.setItalic(font.isItalic());
-            
+
             if (font.getUnderline() != UnderlineType.NONE) {
                 currentRun.setUnderline(UnderlinePatterns.SINGLE);
             }
-            
+
             if (font.getColor() != null) {
-                currentRun.setColor(String.format("%02x%02x%02x", 
-                    font.getColor().getRed(), 
-                    font.getColor().getGreen(), 
-                    font.getColor().getBlue()));
+                currentRun.setColor(String.format("%02x%02x%02x",
+                        font.getColor().getRed(),
+                        font.getColor().getGreen(),
+                        font.getColor().getBlue()));
             }
         }
     }
@@ -118,7 +120,7 @@ public class DocumentBuilder {
                     currentParagraph.setAlignment(org.apache.poi.xwpf.usermodel.ParagraphAlignment.BOTH);
                     break;
             }
-            
+
             currentParagraph.setIndentationLeft((int) paragraphFormat.getLeftIndent());
             currentParagraph.setIndentationRight((int) paragraphFormat.getRightIndent());
             currentParagraph.setIndentationFirstLine((int) paragraphFormat.getFirstLineIndent());
@@ -137,7 +139,7 @@ public class DocumentBuilder {
         if (!imageFile.exists()) {
             throw new IOException("Image file not found: " + imagePath);
         }
-        
+
         String fileName = imageFile.getName().toLowerCase();
         int format;
         if (fileName.endsWith(".png")) {
@@ -149,11 +151,11 @@ public class DocumentBuilder {
         } else {
             throw new IOException("Unsupported image format: " + fileName);
         }
-        
+
         try (FileInputStream fis = new FileInputStream(imageFile)) {
             currentRun.addPicture(fis, format, fileName, 200, 200);
         }
-        
+
         return new Shape();
     }
 
@@ -170,11 +172,11 @@ public class DocumentBuilder {
 
     public void insertHyperlink(String address, String text) {
         String id = document.getPackagePart().addExternalRelationship(
-            address, XWPFRelation.HYPERLINK.getRelation()).getId();
-        
+                address, XWPFRelation.HYPERLINK.getRelation()).getId();
+
         CTHyperlink hyperlink = currentParagraph.getCTP().addNewHyperlink();
         hyperlink.setId(id);
-        
+
         CTText ctText = CTText.Factory.newInstance();
         ctText.setStringValue(text);
         CTR ctr = CTR.Factory.newInstance();
@@ -217,60 +219,150 @@ public class DocumentBuilder {
         private EmphasisMark emphasisMark = EmphasisMark.NONE;
 
         // Getters and setters
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        
-        public double getSize() { return size; }
-        public void setSize(double size) { this.size = size; }
-        
-        public boolean isBold() { return bold; }
-        public void setBold(boolean bold) { this.bold = bold; }
-        
-        public boolean isItalic() { return italic; }
-        public void setItalic(boolean italic) { this.italic = italic; }
-        
-        public UnderlineType getUnderline() { return underline; }
-        public void setUnderline(UnderlineType underline) { this.underline = underline; }
-        
-        public Color getColor() { return color; }
-        public void setColor(Color color) { this.color = color; }
-        
-        public boolean isStrikeThrough() { return strikeThrough; }
-        public void setStrikeThrough(boolean strikeThrough) { this.strikeThrough = strikeThrough; }
-        
-        public boolean isDoubleStrikeThrough() { return doubleStrikeThrough; }
-        public void setDoubleStrikeThrough(boolean doubleStrikeThrough) { this.doubleStrikeThrough = doubleStrikeThrough; }
-        
-        public boolean isSubscript() { return subscript; }
-        public void setSubscript(boolean subscript) { this.subscript = subscript; }
-        
-        public boolean isSuperscript() { return superscript; }
-        public void setSuperscript(boolean superscript) { this.superscript = superscript; }
-        
-        public boolean isSmallCaps() { return smallCaps; }
-        public void setSmallCaps(boolean smallCaps) { this.smallCaps = smallCaps; }
-        
-        public boolean isAllCaps() { return allCaps; }
-        public void setAllCaps(boolean allCaps) { this.allCaps = allCaps; }
-        
-        public boolean isHidden() { return hidden; }
-        public void setHidden(boolean hidden) { this.hidden = hidden; }
-        
-        public double getSpacing() { return spacing; }
-        public void setSpacing(double spacing) { this.spacing = spacing; }
-        
-        public double getPosition() { return position; }
-        public void setPosition(double position) { this.position = position; }
-        
-        public int getScaling() { return scaling; }
-        public void setScaling(int scaling) { this.scaling = scaling; }
-        
-        public Color getHighlightColor() { return highlightColor; }
-        public void setHighlightColor(Color highlightColor) { this.highlightColor = highlightColor; }
-        
-        public EmphasisMark getEmphasisMark() { return emphasisMark; }
-        public void setEmphasisMark(EmphasisMark emphasisMark) { this.emphasisMark = emphasisMark; }
-        
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getSize() {
+            return size;
+        }
+
+        public void setSize(double size) {
+            this.size = size;
+        }
+
+        public boolean isBold() {
+            return bold;
+        }
+
+        public void setBold(boolean bold) {
+            this.bold = bold;
+        }
+
+        public boolean isItalic() {
+            return italic;
+        }
+
+        public void setItalic(boolean italic) {
+            this.italic = italic;
+        }
+
+        public UnderlineType getUnderline() {
+            return underline;
+        }
+
+        public void setUnderline(UnderlineType underline) {
+            this.underline = underline;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        public void setColor(Color color) {
+            this.color = color;
+        }
+
+        public boolean isStrikeThrough() {
+            return strikeThrough;
+        }
+
+        public void setStrikeThrough(boolean strikeThrough) {
+            this.strikeThrough = strikeThrough;
+        }
+
+        public boolean isDoubleStrikeThrough() {
+            return doubleStrikeThrough;
+        }
+
+        public void setDoubleStrikeThrough(boolean doubleStrikeThrough) {
+            this.doubleStrikeThrough = doubleStrikeThrough;
+        }
+
+        public boolean isSubscript() {
+            return subscript;
+        }
+
+        public void setSubscript(boolean subscript) {
+            this.subscript = subscript;
+        }
+
+        public boolean isSuperscript() {
+            return superscript;
+        }
+
+        public void setSuperscript(boolean superscript) {
+            this.superscript = superscript;
+        }
+
+        public boolean isSmallCaps() {
+            return smallCaps;
+        }
+
+        public void setSmallCaps(boolean smallCaps) {
+            this.smallCaps = smallCaps;
+        }
+
+        public boolean isAllCaps() {
+            return allCaps;
+        }
+
+        public void setAllCaps(boolean allCaps) {
+            this.allCaps = allCaps;
+        }
+
+        public boolean isHidden() {
+            return hidden;
+        }
+
+        public void setHidden(boolean hidden) {
+            this.hidden = hidden;
+        }
+
+        public double getSpacing() {
+            return spacing;
+        }
+
+        public void setSpacing(double spacing) {
+            this.spacing = spacing;
+        }
+
+        public double getPosition() {
+            return position;
+        }
+
+        public void setPosition(double position) {
+            this.position = position;
+        }
+
+        public int getScaling() {
+            return scaling;
+        }
+
+        public void setScaling(int scaling) {
+            this.scaling = scaling;
+        }
+
+        public Color getHighlightColor() {
+            return highlightColor;
+        }
+
+        public void setHighlightColor(Color highlightColor) {
+            this.highlightColor = highlightColor;
+        }
+
+        public EmphasisMark getEmphasisMark() {
+            return emphasisMark;
+        }
+
+        public void setEmphasisMark(EmphasisMark emphasisMark) {
+            this.emphasisMark = emphasisMark;
+        }
+
         public void clearFormatting() {
             this.name = "Calibri";
             this.size = 11.0;
@@ -316,66 +408,166 @@ public class DocumentBuilder {
         private Borders borders = new Borders();
 
         // Getters and setters
-        public ParagraphAlignment getAlignment() { return alignment; }
-        public void setAlignment(ParagraphAlignment alignment) { this.alignment = alignment; }
-        
-        public double getLeftIndent() { return leftIndent; }
-        public void setLeftIndent(double leftIndent) { this.leftIndent = leftIndent; }
-        
-        public double getRightIndent() { return rightIndent; }
-        public void setRightIndent(double rightIndent) { this.rightIndent = rightIndent; }
-        
-        public double getFirstLineIndent() { return firstLineIndent; }
-        public void setFirstLineIndent(double firstLineIndent) { this.firstLineIndent = firstLineIndent; }
-        
-        public double getSpaceBefore() { return spaceBefore; }
-        public void setSpaceBefore(double spaceBefore) { this.spaceBefore = spaceBefore; }
-        
-        public double getSpaceAfter() { return spaceAfter; }
-        public void setSpaceAfter(double spaceAfter) { this.spaceAfter = spaceAfter; }
-        
-        public double getLineSpacing() { return lineSpacing; }
-        public void setLineSpacing(double lineSpacing) { this.lineSpacing = lineSpacing; }
-        
-        public LineSpacingRule getLineSpacingRule() { return lineSpacingRule; }
-        public void setLineSpacingRule(LineSpacingRule lineSpacingRule) { this.lineSpacingRule = lineSpacingRule; }
-        
-        public boolean isKeepTogether() { return keepTogether; }
-        public void setKeepTogether(boolean keepTogether) { this.keepTogether = keepTogether; }
-        
-        public boolean isKeepWithNext() { return keepWithNext; }
-        public void setKeepWithNext(boolean keepWithNext) { this.keepWithNext = keepWithNext; }
-        
-        public boolean isPageBreakBefore() { return pageBreakBefore; }
-        public void setPageBreakBefore(boolean pageBreakBefore) { this.pageBreakBefore = pageBreakBefore; }
-        
-        public boolean isWidowControl() { return widowControl; }
-        public void setWidowControl(boolean widowControl) { this.widowControl = widowControl; }
-        
-        public int getOutlineLevel() { return outlineLevel; }
-        public void setOutlineLevel(int outlineLevel) { this.outlineLevel = outlineLevel; }
-        
-        public boolean isSuppressAutoHyphens() { return suppressAutoHyphens; }
-        public void setSuppressAutoHyphens(boolean suppressAutoHyphens) { this.suppressAutoHyphens = suppressAutoHyphens; }
-        
-        public boolean isSuppressLineNumbers() { return suppressLineNumbers; }
-        public void setSuppressLineNumbers(boolean suppressLineNumbers) { this.suppressLineNumbers = suppressLineNumbers; }
-        
-        public boolean isNoSpaceBetweenParagraphsOfSameStyle() { return noSpaceBetweenParagraphsOfSameStyle; }
-        public void setNoSpaceBetweenParagraphsOfSameStyle(boolean noSpaceBetweenParagraphsOfSameStyle) { this.noSpaceBetweenParagraphsOfSameStyle = noSpaceBetweenParagraphsOfSameStyle; }
-        
-        public String getStyleName() { return styleName; }
-        public void setStyleName(String styleName) { this.styleName = styleName; }
-        
-        public TabStopCollection getTabStops() { return tabStops; }
-        public void setTabStops(TabStopCollection tabStops) { this.tabStops = tabStops; }
-        
-        public Shading getShading() { return shading; }
-        public void setShading(Shading shading) { this.shading = shading; }
-        
-        public Borders getBorders() { return borders; }
-        public void setBorders(Borders borders) { this.borders = borders; }
-        
+        public ParagraphAlignment getAlignment() {
+            return alignment;
+        }
+
+        public void setAlignment(ParagraphAlignment alignment) {
+            this.alignment = alignment;
+        }
+
+        public double getLeftIndent() {
+            return leftIndent;
+        }
+
+        public void setLeftIndent(double leftIndent) {
+            this.leftIndent = leftIndent;
+        }
+
+        public double getRightIndent() {
+            return rightIndent;
+        }
+
+        public void setRightIndent(double rightIndent) {
+            this.rightIndent = rightIndent;
+        }
+
+        public double getFirstLineIndent() {
+            return firstLineIndent;
+        }
+
+        public void setFirstLineIndent(double firstLineIndent) {
+            this.firstLineIndent = firstLineIndent;
+        }
+
+        public double getSpaceBefore() {
+            return spaceBefore;
+        }
+
+        public void setSpaceBefore(double spaceBefore) {
+            this.spaceBefore = spaceBefore;
+        }
+
+        public double getSpaceAfter() {
+            return spaceAfter;
+        }
+
+        public void setSpaceAfter(double spaceAfter) {
+            this.spaceAfter = spaceAfter;
+        }
+
+        public double getLineSpacing() {
+            return lineSpacing;
+        }
+
+        public void setLineSpacing(double lineSpacing) {
+            this.lineSpacing = lineSpacing;
+        }
+
+        public LineSpacingRule getLineSpacingRule() {
+            return lineSpacingRule;
+        }
+
+        public void setLineSpacingRule(LineSpacingRule lineSpacingRule) {
+            this.lineSpacingRule = lineSpacingRule;
+        }
+
+        public boolean isKeepTogether() {
+            return keepTogether;
+        }
+
+        public void setKeepTogether(boolean keepTogether) {
+            this.keepTogether = keepTogether;
+        }
+
+        public boolean isKeepWithNext() {
+            return keepWithNext;
+        }
+
+        public void setKeepWithNext(boolean keepWithNext) {
+            this.keepWithNext = keepWithNext;
+        }
+
+        public boolean isPageBreakBefore() {
+            return pageBreakBefore;
+        }
+
+        public void setPageBreakBefore(boolean pageBreakBefore) {
+            this.pageBreakBefore = pageBreakBefore;
+        }
+
+        public boolean isWidowControl() {
+            return widowControl;
+        }
+
+        public void setWidowControl(boolean widowControl) {
+            this.widowControl = widowControl;
+        }
+
+        public int getOutlineLevel() {
+            return outlineLevel;
+        }
+
+        public void setOutlineLevel(int outlineLevel) {
+            this.outlineLevel = outlineLevel;
+        }
+
+        public boolean isSuppressAutoHyphens() {
+            return suppressAutoHyphens;
+        }
+
+        public void setSuppressAutoHyphens(boolean suppressAutoHyphens) {
+            this.suppressAutoHyphens = suppressAutoHyphens;
+        }
+
+        public boolean isSuppressLineNumbers() {
+            return suppressLineNumbers;
+        }
+
+        public void setSuppressLineNumbers(boolean suppressLineNumbers) {
+            this.suppressLineNumbers = suppressLineNumbers;
+        }
+
+        public boolean isNoSpaceBetweenParagraphsOfSameStyle() {
+            return noSpaceBetweenParagraphsOfSameStyle;
+        }
+
+        public void setNoSpaceBetweenParagraphsOfSameStyle(boolean noSpaceBetweenParagraphsOfSameStyle) {
+            this.noSpaceBetweenParagraphsOfSameStyle = noSpaceBetweenParagraphsOfSameStyle;
+        }
+
+        public String getStyleName() {
+            return styleName;
+        }
+
+        public void setStyleName(String styleName) {
+            this.styleName = styleName;
+        }
+
+        public TabStopCollection getTabStops() {
+            return tabStops;
+        }
+
+        public void setTabStops(TabStopCollection tabStops) {
+            this.tabStops = tabStops;
+        }
+
+        public Shading getShading() {
+            return shading;
+        }
+
+        public void setShading(Shading shading) {
+            this.shading = shading;
+        }
+
+        public Borders getBorders() {
+            return borders;
+        }
+
+        public void setBorders(Borders borders) {
+            this.borders = borders;
+        }
+
         public void clearFormatting() {
             this.alignment = ParagraphAlignment.LEFT;
             this.leftIndent = 0.0;
@@ -428,81 +620,206 @@ public class DocumentBuilder {
         private String layoutMode;
 
         // Getters and setters
-        public PaperSize getPaperSize() { return paperSize; }
-        public void setPaperSize(PaperSize paperSize) { this.paperSize = paperSize; }
-        
-        public Orientation getOrientation() { return orientation; }
-        public void setOrientation(Orientation orientation) { this.orientation = orientation; }
-        
-        public double getTopMargin() { return topMargin; }
-        public void setTopMargin(double topMargin) { this.topMargin = topMargin; }
-        
-        public double getBottomMargin() { return bottomMargin; }
-        public void setBottomMargin(double bottomMargin) { this.bottomMargin = bottomMargin; }
-        
-        public double getLeftMargin() { return leftMargin; }
-        public void setLeftMargin(double leftMargin) { this.leftMargin = leftMargin; }
-        
-        public double getRightMargin() { return rightMargin; }
-        public void setRightMargin(double rightMargin) { this.rightMargin = rightMargin; }
-        
-        public double getHeaderDistance() { return headerDistance; }
-        public void setHeaderDistance(double headerDistance) { this.headerDistance = headerDistance; }
-        
-        public double getFooterDistance() { return footerDistance; }
-        public void setFooterDistance(double footerDistance) { this.footerDistance = footerDistance; }
-        
-        public double getGutter() { return gutter; }
-        public void setGutter(double gutter) { this.gutter = gutter; }
-        
-        public GutterPosition getGutterPos() { return gutterPos; }
-        public void setGutterPos(GutterPosition gutterPos) { this.gutterPos = gutterPos; }
-        
-        public double getPageWidth() { return pageWidth; }
-        public void setPageWidth(double pageWidth) { this.pageWidth = pageWidth; }
-        
-        public double getPageHeight() { return pageHeight; }
-        public void setPageHeight(double pageHeight) { this.pageHeight = pageHeight; }
-        
-        public boolean isDifferentFirstPageHeaderFooter() { return differentFirstPageHeaderFooter; }
-        public void setDifferentFirstPageHeaderFooter(boolean differentFirstPageHeaderFooter) { this.differentFirstPageHeaderFooter = differentFirstPageHeaderFooter; }
-        
-        public boolean isOddAndEvenPagesHeaderFooter() { return oddAndEvenPagesHeaderFooter; }
-        public void setOddAndEvenPagesHeaderFooter(boolean oddAndEvenPagesHeaderFooter) { this.oddAndEvenPagesHeaderFooter = oddAndEvenPagesHeaderFooter; }
-        
-        public SectionStart getSectionStart() { return sectionStart; }
-        public void setSectionStart(SectionStart sectionStart) { this.sectionStart = sectionStart; }
-        
-        public boolean isSuppressEndnotes() { return suppressEndnotes; }
-        public void setSuppressEndnotes(boolean suppressEndnotes) { this.suppressEndnotes = suppressEndnotes; }
-        
-        public VerticalAlignment getVerticalAlignment() { return verticalAlignment; }
-        public void setVerticalAlignment(VerticalAlignment verticalAlignment) { this.verticalAlignment = verticalAlignment; }
-        
-        public PageNumberStyle getPageNumberStyle() { return pageNumberStyle; }
-        public void setPageNumberStyle(PageNumberStyle pageNumberStyle) { this.pageNumberStyle = pageNumberStyle; }
-        
-        public int getPageStartingNumber() { return pageStartingNumber; }
-        public void setPageStartingNumber(int pageStartingNumber) { this.pageStartingNumber = pageStartingNumber; }
-        
-        public boolean isRestartPageNumbering() { return restartPageNumbering; }
-        public void setRestartPageNumbering(boolean restartPageNumbering) { this.restartPageNumbering = restartPageNumbering; }
-        
-        public int getLineNumberCountBy() { return lineNumberCountBy; }
-        public void setLineNumberCountBy(int lineNumberCountBy) { this.lineNumberCountBy = lineNumberCountBy; }
-        
-        public double getLineNumberDistanceFromText() { return lineNumberDistanceFromText; }
-        public void setLineNumberDistanceFromText(double lineNumberDistanceFromText) { this.lineNumberDistanceFromText = lineNumberDistanceFromText; }
-        
-        public LineNumberRestartMode getLineNumberRestartMode() { return lineNumberRestartMode; }
-        public void setLineNumberRestartMode(LineNumberRestartMode lineNumberRestartMode) { this.lineNumberRestartMode = lineNumberRestartMode; }
-        
-        public int getLineNumberStartingValue() { return lineNumberStartingValue; }
-        public void setLineNumberStartingValue(int lineNumberStartingValue) { this.lineNumberStartingValue = lineNumberStartingValue; }
-        
-        public String getLayoutMode() { return layoutMode; }
-        public void setLayoutMode(String layoutMode) { this.layoutMode = layoutMode; }
-        
+        public PaperSize getPaperSize() {
+            return paperSize;
+        }
+
+        public void setPaperSize(PaperSize paperSize) {
+            this.paperSize = paperSize;
+        }
+
+        public Orientation getOrientation() {
+            return orientation;
+        }
+
+        public void setOrientation(Orientation orientation) {
+            this.orientation = orientation;
+        }
+
+        public double getTopMargin() {
+            return topMargin;
+        }
+
+        public void setTopMargin(double topMargin) {
+            this.topMargin = topMargin;
+        }
+
+        public double getBottomMargin() {
+            return bottomMargin;
+        }
+
+        public void setBottomMargin(double bottomMargin) {
+            this.bottomMargin = bottomMargin;
+        }
+
+        public double getLeftMargin() {
+            return leftMargin;
+        }
+
+        public void setLeftMargin(double leftMargin) {
+            this.leftMargin = leftMargin;
+        }
+
+        public double getRightMargin() {
+            return rightMargin;
+        }
+
+        public void setRightMargin(double rightMargin) {
+            this.rightMargin = rightMargin;
+        }
+
+        public double getHeaderDistance() {
+            return headerDistance;
+        }
+
+        public void setHeaderDistance(double headerDistance) {
+            this.headerDistance = headerDistance;
+        }
+
+        public double getFooterDistance() {
+            return footerDistance;
+        }
+
+        public void setFooterDistance(double footerDistance) {
+            this.footerDistance = footerDistance;
+        }
+
+        public double getGutter() {
+            return gutter;
+        }
+
+        public void setGutter(double gutter) {
+            this.gutter = gutter;
+        }
+
+        public GutterPosition getGutterPos() {
+            return gutterPos;
+        }
+
+        public void setGutterPos(GutterPosition gutterPos) {
+            this.gutterPos = gutterPos;
+        }
+
+        public double getPageWidth() {
+            return pageWidth;
+        }
+
+        public void setPageWidth(double pageWidth) {
+            this.pageWidth = pageWidth;
+        }
+
+        public double getPageHeight() {
+            return pageHeight;
+        }
+
+        public void setPageHeight(double pageHeight) {
+            this.pageHeight = pageHeight;
+        }
+
+        public boolean isDifferentFirstPageHeaderFooter() {
+            return differentFirstPageHeaderFooter;
+        }
+
+        public void setDifferentFirstPageHeaderFooter(boolean differentFirstPageHeaderFooter) {
+            this.differentFirstPageHeaderFooter = differentFirstPageHeaderFooter;
+        }
+
+        public boolean isOddAndEvenPagesHeaderFooter() {
+            return oddAndEvenPagesHeaderFooter;
+        }
+
+        public void setOddAndEvenPagesHeaderFooter(boolean oddAndEvenPagesHeaderFooter) {
+            this.oddAndEvenPagesHeaderFooter = oddAndEvenPagesHeaderFooter;
+        }
+
+        public SectionStart getSectionStart() {
+            return sectionStart;
+        }
+
+        public void setSectionStart(SectionStart sectionStart) {
+            this.sectionStart = sectionStart;
+        }
+
+        public boolean isSuppressEndnotes() {
+            return suppressEndnotes;
+        }
+
+        public void setSuppressEndnotes(boolean suppressEndnotes) {
+            this.suppressEndnotes = suppressEndnotes;
+        }
+
+        public VerticalAlignment getVerticalAlignment() {
+            return verticalAlignment;
+        }
+
+        public void setVerticalAlignment(VerticalAlignment verticalAlignment) {
+            this.verticalAlignment = verticalAlignment;
+        }
+
+        public PageNumberStyle getPageNumberStyle() {
+            return pageNumberStyle;
+        }
+
+        public void setPageNumberStyle(PageNumberStyle pageNumberStyle) {
+            this.pageNumberStyle = pageNumberStyle;
+        }
+
+        public int getPageStartingNumber() {
+            return pageStartingNumber;
+        }
+
+        public void setPageStartingNumber(int pageStartingNumber) {
+            this.pageStartingNumber = pageStartingNumber;
+        }
+
+        public boolean isRestartPageNumbering() {
+            return restartPageNumbering;
+        }
+
+        public void setRestartPageNumbering(boolean restartPageNumbering) {
+            this.restartPageNumbering = restartPageNumbering;
+        }
+
+        public int getLineNumberCountBy() {
+            return lineNumberCountBy;
+        }
+
+        public void setLineNumberCountBy(int lineNumberCountBy) {
+            this.lineNumberCountBy = lineNumberCountBy;
+        }
+
+        public double getLineNumberDistanceFromText() {
+            return lineNumberDistanceFromText;
+        }
+
+        public void setLineNumberDistanceFromText(double lineNumberDistanceFromText) {
+            this.lineNumberDistanceFromText = lineNumberDistanceFromText;
+        }
+
+        public LineNumberRestartMode getLineNumberRestartMode() {
+            return lineNumberRestartMode;
+        }
+
+        public void setLineNumberRestartMode(LineNumberRestartMode lineNumberRestartMode) {
+            this.lineNumberRestartMode = lineNumberRestartMode;
+        }
+
+        public int getLineNumberStartingValue() {
+            return lineNumberStartingValue;
+        }
+
+        public void setLineNumberStartingValue(int lineNumberStartingValue) {
+            this.lineNumberStartingValue = lineNumberStartingValue;
+        }
+
+        public String getLayoutMode() {
+            return layoutMode;
+        }
+
+        public void setLayoutMode(String layoutMode) {
+            this.layoutMode = layoutMode;
+        }
+
         public void clearFormatting() {
             this.paperSize = PaperSize.A4;
             this.orientation = Orientation.PORTRAIT;
@@ -535,11 +852,11 @@ public class DocumentBuilder {
     // Supporting classes
     public static class Table {
         private XWPFTable table;
-        
+
         public Table(XWPFTable table) {
             this.table = table;
         }
-        
+
         public XWPFTable getTable() {
             return table;
         }
@@ -551,11 +868,11 @@ public class DocumentBuilder {
 
     public static class Field {
         private String fieldCode;
-        
+
         public Field(String fieldCode) {
             this.fieldCode = fieldCode;
         }
-        
+
         public String getFieldCode() {
             return fieldCode;
         }
@@ -563,11 +880,11 @@ public class DocumentBuilder {
 
     public static class BookmarkStart {
         private String name;
-        
+
         public BookmarkStart(String name) {
             this.name = name;
         }
-        
+
         public String getName() {
             return name;
         }
@@ -575,11 +892,11 @@ public class DocumentBuilder {
 
     public static class BookmarkEnd {
         private String name;
-        
+
         public BookmarkEnd(String name) {
             this.name = name;
         }
-        
+
         public String getName() {
             return name;
         }
@@ -633,15 +950,15 @@ public class DocumentBuilder {
     // Supporting classes for formatting
     public static class TabStopCollection {
         private List<TabStop> tabStops = new ArrayList<>();
-        
+
         public void add(TabStop tabStop) {
             tabStops.add(tabStop);
         }
-        
+
         public void clear() {
             tabStops.clear();
         }
-        
+
         public List<TabStop> getTabStops() {
             return tabStops;
         }
@@ -651,21 +968,36 @@ public class DocumentBuilder {
         private double position;
         private TabAlignment alignment;
         private TabLeader leader;
-        
+
         public TabStop(double position, TabAlignment alignment, TabLeader leader) {
             this.position = position;
             this.alignment = alignment;
             this.leader = leader;
         }
-        
-        public double getPosition() { return position; }
-        public void setPosition(double position) { this.position = position; }
-        
-        public TabAlignment getAlignment() { return alignment; }
-        public void setAlignment(TabAlignment alignment) { this.alignment = alignment; }
-        
-        public TabLeader getLeader() { return leader; }
-        public void setLeader(TabLeader leader) { this.leader = leader; }
+
+        public double getPosition() {
+            return position;
+        }
+
+        public void setPosition(double position) {
+            this.position = position;
+        }
+
+        public TabAlignment getAlignment() {
+            return alignment;
+        }
+
+        public void setAlignment(TabAlignment alignment) {
+            this.alignment = alignment;
+        }
+
+        public TabLeader getLeader() {
+            return leader;
+        }
+
+        public void setLeader(TabLeader leader) {
+            this.leader = leader;
+        }
     }
 
     public enum TabAlignment {
@@ -680,15 +1012,30 @@ public class DocumentBuilder {
         private Color backgroundColor;
         private Color foregroundPatternColor;
         private TextureIndex texture;
-        
-        public Color getBackgroundPatternColor() { return backgroundColor; }
-        public void setBackgroundPatternColor(Color backgroundColor) { this.backgroundColor = backgroundColor; }
-        
-        public Color getForegroundPatternColor() { return foregroundPatternColor; }
-        public void setForegroundPatternColor(Color foregroundPatternColor) { this.foregroundPatternColor = foregroundPatternColor; }
-        
-        public TextureIndex getTexture() { return texture; }
-        public void setTexture(TextureIndex texture) { this.texture = texture; }
+
+        public Color getBackgroundPatternColor() {
+            return backgroundColor;
+        }
+
+        public void setBackgroundPatternColor(Color backgroundColor) {
+            this.backgroundColor = backgroundColor;
+        }
+
+        public Color getForegroundPatternColor() {
+            return foregroundPatternColor;
+        }
+
+        public void setForegroundPatternColor(Color foregroundPatternColor) {
+            this.foregroundPatternColor = foregroundPatternColor;
+        }
+
+        public TextureIndex getTexture() {
+            return texture;
+        }
+
+        public void setTexture(TextureIndex texture) {
+            this.texture = texture;
+        }
     }
 
     public enum TextureIndex {
@@ -704,33 +1051,58 @@ public class DocumentBuilder {
         private Border bottom;
         private Border left;
         private Border right;
-        
+
         public Borders() {
             this.top = new Border();
             this.bottom = new Border();
             this.left = new Border();
             this.right = new Border();
         }
-        
-        public Border getTop() { return top; }
-        public void setTop(Border top) { this.top = top; }
-        
-        public Border getBottom() { return bottom; }
-        public void setBottom(Border bottom) { this.bottom = bottom; }
-        
-        public Border getLeft() { return left; }
-        public void setLeft(Border left) { this.left = left; }
-        
-        public Border getRight() { return right; }
-        public void setRight(Border right) { this.right = right; }
-        
+
+        public Border getTop() {
+            return top;
+        }
+
+        public void setTop(Border top) {
+            this.top = top;
+        }
+
+        public Border getBottom() {
+            return bottom;
+        }
+
+        public void setBottom(Border bottom) {
+            this.bottom = bottom;
+        }
+
+        public Border getLeft() {
+            return left;
+        }
+
+        public void setLeft(Border left) {
+            this.left = left;
+        }
+
+        public Border getRight() {
+            return right;
+        }
+
+        public void setRight(Border right) {
+            this.right = right;
+        }
+
         public Border get(BorderType borderType) {
             switch (borderType) {
-                case TOP: return top;
-                case BOTTOM: return bottom;
-                case LEFT: return left;
-                case RIGHT: return right;
-                default: return null;
+                case TOP:
+                    return top;
+                case BOTTOM:
+                    return bottom;
+                case LEFT:
+                    return left;
+                case RIGHT:
+                    return right;
+                default:
+                    return null;
             }
         }
     }
@@ -740,18 +1112,38 @@ public class DocumentBuilder {
         private double lineWidth;
         private Color color;
         private boolean isVisible;
-        
-        public BorderType getBorderType() { return borderType; }
-        public void setBorderType(BorderType borderType) { this.borderType = borderType; }
-        
-        public double getLineWidth() { return lineWidth; }
-        public void setLineWidth(double lineWidth) { this.lineWidth = lineWidth; }
-        
-        public Color getColor() { return color; }
-        public void setColor(Color color) { this.color = color; }
-        
-        public boolean isVisible() { return isVisible; }
-        public void setVisible(boolean visible) { isVisible = visible; }
+
+        public BorderType getBorderType() {
+            return borderType;
+        }
+
+        public void setBorderType(BorderType borderType) {
+            this.borderType = borderType;
+        }
+
+        public double getLineWidth() {
+            return lineWidth;
+        }
+
+        public void setLineWidth(double lineWidth) {
+            this.lineWidth = lineWidth;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        public void setColor(Color color) {
+            this.color = color;
+        }
+
+        public boolean isVisible() {
+            return isVisible;
+        }
+
+        public void setVisible(boolean visible) {
+            isVisible = visible;
+        }
     }
 
     public enum BorderType {

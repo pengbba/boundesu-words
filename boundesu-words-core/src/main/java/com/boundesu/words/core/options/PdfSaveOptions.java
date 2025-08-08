@@ -2,7 +2,9 @@ package com.boundesu.words.core.options;
 
 /**
  * PdfSaveOptions provides options for saving PDF documents.
- * This class mimics the Aspose Words PdfSaveOptions API.
+ *
+ * @author Boundesu Team
+ * @version 1.0.0
  */
 public class PdfSaveOptions extends SaveOptions {
     private boolean additionalTextPositioning;

@@ -5,7 +5,9 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * LoadOptions provides options for loading documents.
- * This class mimics the Aspose Words LoadOptions API.
+ *
+ * @author Boundesu Team
+ * @version 1.0.0
  */
 public class LoadOptions {
     protected LoadFormat loadFormat;
